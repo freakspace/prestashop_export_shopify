@@ -29,8 +29,9 @@ class OptionValue:
 @dataclass_json
 @dataclass
 class CreateShopifyProductVariantInput:
+    barcode: str
     inventoryItem: InventoryItem
-    inventoryPolicy: str
+    inventoryPolicy: str  # CONTINUE = Customers can buy this product variant after it's out of stock.
     optionValues: List[OptionValue]
     price: MoneyV2
 

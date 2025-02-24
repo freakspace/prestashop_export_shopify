@@ -137,6 +137,7 @@ def create_shopify_product_input(product):
                         )
             variants.append(
                 CreateShopifyProductVariantInput(
+                    barcode=variant["combination"]["ean13"],
                     inventoryItem=InventoryItem(
                         cost=MoneyV2(
                             amount=float(variant["combination"]["wholesale_price"]),
@@ -153,7 +154,26 @@ def create_shopify_product_input(product):
                     ),
                 )
             )
-
+    else:
+        # Construct a single Variant since Shopify requires at least 1 variant
+        new_variant = CreateShopifyProductVariantInput(
+            barcode=product["ean13"],
+            inventoryItem=InventoryItem(
+                cost=MoneyV2(
+                    amount=float(product["wholesale_price"]),
+                    currencyCode="DKK",
+                ),
+                sku=product["reference"],
+                tracked=True,
+            ),
+            inventoryPolicy="CONTINUE",
+            optionValues=[],
+            price=MoneyV2(
+                amount=float(product["price"]),
+                currencyCode="DKK",
+            ),
+        )
+        variants.append(new_variant)
     return CreateShopifyProductInput(
         product=shopify_product, media=media, metafields=metafields, variants=variants
     )
@@ -164,7 +184,7 @@ def process_product(product):
 
 
 def dump_products():
-    products = get_products(id=None, limit=3)
+    products = get_products(id=None, limit=30)
 
     if "products" in products:
         if isinstance(products["products"]["product"], list):
@@ -183,5 +203,5 @@ def dump_products():
         os.makedirs("dump")
 
     # Save the Shopify product inputs as JSON
-    with open(os.path.join("dump", "shopify_products.py"), "w") as f:
+    with open(os.path.join("dump", "shopify_products.json"), "w") as f:
         json.dump([product.to_dict() for product in shopify_products], f, indent=2)
