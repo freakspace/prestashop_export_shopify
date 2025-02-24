@@ -81,7 +81,22 @@ def get_manufacturer_name(id: int):
     if name == "Karcher":
         name = "Kärcher"
 
-    return manufacturer["manufacturer"]["name"]
+    return name
+
+
+def get_supplier(id: int):
+    return prestashop.get("suppliers", id)
+
+
+def get_supplier_name(id: int):
+    if isinstance(id, str):
+        id = int(id)
+    if id == 0:
+        return ""
+
+    supplier = get_supplier(id)
+
+    return supplier["supplier"]["name"]
 
 
 def get_product_image(id: int):

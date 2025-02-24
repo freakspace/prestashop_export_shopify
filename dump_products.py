@@ -10,6 +10,7 @@ from ps_services import (
     get_feature,
     get_feature_value,
     get_manufacturer_name,
+    get_supplier_name,
 )
 from shopify_types import (
     CreateShopifyProductInput,
@@ -72,6 +73,7 @@ def create_shopify_product_input(product):
 
     metafields = []
 
+    # Handle product features as metafields in Shopify
     if "product_feature" in product["associations"]["product_features"]:
         # Extract metafields
         metafields = [
@@ -89,6 +91,31 @@ def create_shopify_product_input(product):
                 "product_feature"
             ]
         ]
+
+    # Add prestashop data to metadata
+    prestashop_product_id = ShopifyMetaField(
+        namespace="prestashop_product_id",
+        key="id",
+        value=product["id"],
+        type="single_line_text_field",
+    )
+    metafields.append(prestashop_product_id)
+    prestashop_reference = ShopifyMetaField(
+        namespace="prestashop_reference",
+        key="reference",
+        value=product["reference"],
+        type="single_line_text_field",
+    )
+    metafields.append(prestashop_reference)
+    supplier_name = get_supplier_name(product["id_supplier"])
+    if supplier_name:
+        supplier = ShopifyMetaField(
+            namespace="supplier",
+            key="supplier",
+            value=supplier_name,
+            type="single_line_text_field",
+        )
+        metafields.append(supplier)
 
     def get_option_value(product_option_values_id: int):
         option_value = get_product_option_values(product_option_values_id)
@@ -184,7 +211,7 @@ def process_product(product):
 
 
 def dump_products():
-    products = get_products(id=None, limit=30)
+    products = get_products(id=4056, limit=30)
 
     if "products" in products:
         if isinstance(products["products"]["product"], list):
