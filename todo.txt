@@ -1,0 +1,17 @@
+# TODO Test no options OK
+# TODO Test single option OK
+# TODO Test multiple options OK
+# TODO Test no variants OK
+# TODO Test single variant OK
+# TODO Test multiple variants OK
+# TODO Test no images
+# TODO Test single image
+# TODO Test multiple images
+# TODO Test no metafields (Features)
+# TODO Test single metafield
+# TODO Test multiple metafields
+# TODO I need to clean the html from the description and short_description
+# TODO I need to generate alt tag(s)
+# TODO I need to generate title tag and meta description if missing
+# TODO I need to add a log
+# TODO Short description is missing
