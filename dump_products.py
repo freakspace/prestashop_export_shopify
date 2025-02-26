@@ -1,5 +1,6 @@
 import os
 import json
+import requests
 from bs4 import BeautifulSoup
 from ps_services import (
     get_products,
@@ -18,11 +19,16 @@ from shopify_types import (
     SEO,
     CreateShopifyMediaPayload,
     ShopifyMetaField,
-    MoneyV2,
     InventoryItem,
     CreateShopifyProductVariantInput,
+    VariantOptionValue,
+    ProductOptionValue,
     OptionValue,
+    ProductSet,
 )
+
+DEFAULT_OPTION_NAME = "Title"
+DEFAULT_OPTION_VALUE_NAME = "Default Title"
 
 
 def clean_html(html_content):
@@ -46,8 +52,7 @@ def clean_html(html_content):
     return str(soup)
 
 
-def create_shopify_product_input(product):
-    print(f"Processing product: ID {product['id']}")
+def create_shopify_product_input(product, as_set=False):
     seo = SEO(
         description=product["meta_description"]["language"]["value"],
         title=product["meta_title"]["language"]["value"],
@@ -59,6 +64,7 @@ def create_shopify_product_input(product):
         seo=seo,
         status="ACTIVE",
         vendor=get_manufacturer_name(product["id_manufacturer"]),
+        productOptions=[],
     )
     # Image URLs
     images = get_product_image(product["id"])
@@ -92,7 +98,7 @@ def create_shopify_product_input(product):
             ]
         ]
 
-    # Add prestashop data to metadata
+    # Add prestashop product to metadata
     prestashop_product_id = ShopifyMetaField(
         namespace="prestashop_product_id",
         key="id",
@@ -100,6 +106,8 @@ def create_shopify_product_input(product):
         type="single_line_text_field",
     )
     metafields.append(prestashop_product_id)
+
+    # Add prestashop reference to metadata
     prestashop_reference = ShopifyMetaField(
         namespace="prestashop_reference",
         key="reference",
@@ -107,6 +115,20 @@ def create_shopify_product_input(product):
         type="single_line_text_field",
     )
     metafields.append(prestashop_reference)
+
+    # Add prestashop url to metadata
+    product_id = product["id"]
+    prestashop_url = ShopifyMetaField(
+        namespace="prestashop_url",
+        key="url",
+        value=requests.get(
+            f"https://induclean.dk/random/{product_id}-random.html"
+        ).url,  # Ps will automatically redirect
+        type="single_line_text_field",
+    )
+    metafields.append(prestashop_url)
+
+    # Add supplier to metadata
     supplier_name = get_supplier_name(product["id_supplier"])
     if supplier_name:
         supplier = ShopifyMetaField(
@@ -116,6 +138,15 @@ def create_shopify_product_input(product):
             type="single_line_text_field",
         )
         metafields.append(supplier)
+
+    # Add short_description to metadata
+    short_description = ShopifyMetaField(
+        namespace="short_description",
+        key="description",
+        value=product["description_short"]["language"]["value"],
+        type="multi_line_text_field",
+    )
+    metafields.append(short_description)
 
     def get_option_value(product_option_values_id: int):
         option_value = get_product_option_values(product_option_values_id)
@@ -130,13 +161,14 @@ def create_shopify_product_input(product):
 
     # Extract variants
     variants = []
+    option_values = {}
     if (
         "combinations" in product["associations"]
         and "combination" in product["associations"]["combinations"]
     ):
         for combination in product["associations"]["combinations"]["combination"]:
             variant = get_combination(combination["id"])
-            option_values = []
+            variant_option_values = []
             if (
                 "associations" in variant["combination"]
                 and "product_option_values" in variant["combination"]["associations"]
@@ -149,9 +181,14 @@ def create_shopify_product_input(product):
                 if isinstance(variants_payload, dict):
                     option_value_id = variants_payload["id"]
                     option_value_name, option_name = get_option_value(option_value_id)
-                    option_values.append(
-                        OptionValue(name=option_value_name, optionName=option_name)
+                    variant_option_values.append(
+                        VariantOptionValue(
+                            name=option_value_name, optionName=option_name
+                        )
                     )
+                    if option_name not in option_values:
+                        option_values[option_name] = set()
+                    option_values[option_name].add(option_value_name)
 
                 # Multiple options
                 else:
@@ -159,26 +196,27 @@ def create_shopify_product_input(product):
                         option_value_name, option_name = get_option_value(
                             option_value["id"]
                         )
-                        option_values.append(
-                            OptionValue(name=option_value_name, optionName=option_name)
+                        variant_option_values.append(
+                            VariantOptionValue(
+                                name=option_value_name, optionName=option_name
+                            )
                         )
+                        if option_name not in option_values:
+                            option_values[option_name] = set()
+                        option_values[option_name].add(option_value_name)
             variants.append(
                 CreateShopifyProductVariantInput(
                     barcode=variant["combination"]["ean13"],
                     inventoryItem=InventoryItem(
-                        cost=MoneyV2(
-                            amount=float(variant["combination"]["wholesale_price"]),
-                            currencyCode="DKK",
+                        cost=str(
+                            float(variant["combination"]["wholesale_price"])
                         ),  # Using wholesale price as cost price
                         sku=variant["combination"]["reference"],
                         tracked=True,
                     ),
                     inventoryPolicy="CONTINUE",  # CONTINUE = Customers can buy this product variant after it's out of stock.
-                    optionValues=option_values,
-                    price=MoneyV2(
-                        amount=float(variant["combination"]["price"]),
-                        currencyCode="DKK",
-                    ),
+                    optionValues=variant_option_values,
+                    price=str(float(variant["combination"]["price"])),
                 )
             )
     else:
@@ -186,45 +224,80 @@ def create_shopify_product_input(product):
         new_variant = CreateShopifyProductVariantInput(
             barcode=product["ean13"],
             inventoryItem=InventoryItem(
-                cost=MoneyV2(
-                    amount=float(product["wholesale_price"]),
-                    currencyCode="DKK",
-                ),
+                cost=str(float(product["wholesale_price"])),
                 sku=product["reference"],
                 tracked=True,
             ),
             inventoryPolicy="CONTINUE",
-            optionValues=[],
-            price=MoneyV2(
-                amount=float(product["price"]),
-                currencyCode="DKK",
-            ),
+            price=str(float(product["price"])),
+            optionValues=[
+                VariantOptionValue(
+                    name=DEFAULT_OPTION_VALUE_NAME, optionName=DEFAULT_OPTION_NAME
+                )
+            ],
         )
         variants.append(new_variant)
+
+    # Create product options
+    product_options = [
+        ProductOptionValue(
+            name=option_name,
+            values=[OptionValue(name=value) for value in option_values[option_name]],
+        )
+        for option_name in option_values
+    ]
+
+    if len(product_options) > 0:
+        shopify_product.productOptions = product_options
+    else:
+        shopify_product.productOptions = [
+            ProductOptionValue(
+                name=DEFAULT_OPTION_NAME,
+                values=[OptionValue(name=DEFAULT_OPTION_VALUE_NAME)],
+            )
+        ]
+    if as_set:
+
+        return ProductSet(
+            title=shopify_product.title,
+            descriptionHtml=shopify_product.descriptionHtml,
+            handle=shopify_product.handle,
+            seo=shopify_product.seo,
+            status=shopify_product.status,
+            vendor=shopify_product.vendor,
+            productOptions=(
+                shopify_product.productOptions
+                if shopify_product.productOptions
+                else None
+            ),
+            metafields=metafields,
+            variants=variants,
+        )
+
     return CreateShopifyProductInput(
         product=shopify_product, media=media, metafields=metafields, variants=variants
     )
 
 
-def process_product(product):
-    return create_shopify_product_input(product)
-
-
 def dump_products():
-    products = get_products(id=4056, limit=30)
-
+    products = get_products(id=None, limit=2)
+    CREATE_AS_SET = True
     if "products" in products:
         if isinstance(products["products"]["product"], list):
             shopify_products = [
-                create_shopify_product_input(product)
+                create_shopify_product_input(product, CREATE_AS_SET)
                 for product in products["products"]["product"]
             ]
         else:
             shopify_products = [
-                create_shopify_product_input(products["products"]["product"])
+                create_shopify_product_input(
+                    products["products"]["product"], CREATE_AS_SET
+                )
             ]
     else:
-        shopify_products = [create_shopify_product_input(products["product"])]
+        shopify_products = [
+            create_shopify_product_input(products["product"], CREATE_AS_SET)
+        ]
 
     if not os.path.exists("dump"):
         os.makedirs("dump")
