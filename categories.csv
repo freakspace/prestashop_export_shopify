@@ -1,0 +1,259 @@
+ID,Name,Level,Parent Name
+1,Hovedkategori,0,
+2,webshop,1,Hovedkategori
+24,Produkter,2,webshop
+25,Gulvvaskemaskine til industri,3,Produkter
+423,Gulvvaskemaskiner  ledningsmodel 230v,4,Gulvvaskemaskine til industri
+36,Kompakt gulvvasker,4,Gulvvaskemaskine til industri
+37,Walk behind gulvvasker,4,Gulvvaskemaskine til industri
+39,Ride-on gulvvasker,4,Gulvvaskemaskine til industri
+225,Skuremaskine,4,Gulvvaskemaskine til industri
+26,Industri Højtryksrenser,3,Produkter
+40,Koldt vand højtryksrenser,4,Industri Højtryksrenser
+43,Kompakt,5,Koldt vand højtryksrenser
+44,Medium,5,Koldt vand højtryksrenser
+45,Super,5,Koldt vand højtryksrenser
+46,Special,5,Koldt vand højtryksrenser
+47,Med forbrændingsmotor,5,Koldt vand højtryksrenser
+41,Hedvandsrenser,4,Industri Højtryksrenser
+48,Kompakt,5,Hedvandsrenser
+49,Medium,5,Hedvandsrenser
+50,Super,5,Hedvandsrenser
+52,Special,5,Hedvandsrenser
+53,Med forbrændingsmotor,5,Hedvandsrenser
+335,Hedvandsrenser på gas,5,Hedvandsrenser
+42,Stationær højtryksrenser,4,Industri Højtryksrenser
+177,Stationær koldtvandsrenser,5,Stationær højtryksrenser
+178,Stationær hedvandsrenser,5,Stationær højtryksrenser
+174,Højtryksrenser med forbrændingsmotor,4,Industri Højtryksrenser
+175,Koldtvandsrenser med forbrændingsmotor,5,Højtryksrenser med forbrændingsmotor
+176,Hedvandsrenser med forbrændingsmotor,5,Højtryksrenser med forbrændingsmotor
+179,Hotbox,4,Industri Højtryksrenser
+180,Hydraulik højtryksrenser,4,Industri Højtryksrenser
+236,Mobilt højtryksrenser anlæg,4,Industri Højtryksrenser
+304,400+ Bars højtryksrenser,4,Industri Højtryksrenser
+27,Industri Fejemaskine,3,Produkter
+76,Fejemaskine manuel,4,Industri Fejemaskine
+77,Fejemaskine walk-behind,4,Industri Fejemaskine
+78,Fejemaskine Ride-On,4,Industri Fejemaskine
+28,Støvsuger til industri,3,Produkter
+82,Tæppe støvsuger,4,Støvsuger til industri
+83,Erhverv støvsuger,4,Støvsuger til industri
+84,Vådstøvsuger,4,Støvsuger til industri
+85,Sikkerhedsstøvsuger,4,Støvsuger til industri
+86,Specialsuger,4,Støvsuger til industri
+138,Askesuger,4,Støvsuger til industri
+140,Rygstøvsuger,4,Støvsuger til industri
+327,Tagrende rengøring,4,Støvsuger til industri
+29,Tæppe og damprenser,3,Produkter
+30,Kompressor,3,Produkter
+591,,4,Kompressor
+584,,4,Kompressor
+287,Lydsvag kompressor,4,Kompressor
+288,Bærbar kompressor,4,Kompressor
+289,Oliefri kompressor,4,Kompressor
+410,Stempelkompressor,4,Kompressor
+585,Olieholdige kompressorer,4,Kompressor
+586,Værksteds kompressorer,4,Kompressor
+587,Heavy Duty Kompressorer,4,Kompressor
+588,Benzin/diesel kompressorer,4,Kompressor
+589,Skruekompressorer,4,Kompressor
+590,Dykker/højtryks kompressorer,4,Kompressor
+592,Dental kompressorer,4,Kompressor
+594,Køletørrer,4,Kompressor
+595,Kompressor tilbehør,4,Kompressor
+604,,5,Kompressor tilbehør
+609,,5,Kompressor tilbehør
+596,Oprullere,5,Kompressor tilbehør
+597,,5,Kompressor tilbehør
+598,Slanger,5,Kompressor tilbehør
+599,Sprøjtepistoler,5,Kompressor tilbehør
+600,Luftpåfyldere,5,Kompressor tilbehør
+601,Blæsepistoler,5,Kompressor tilbehør
+602,Professionel trykluftværktøj,5,Kompressor tilbehør
+603,Olie,5,Kompressor tilbehør
+605,Regulator & vandudskiller,5,Kompressor tilbehør
+606,Koblinger & fittings,5,Kompressor tilbehør
+607,Filterhuse og elementer,5,Kompressor tilbehør
+608,Kompressorblokke,5,Kompressor tilbehør
+610,Tanke,5,Kompressor tilbehør
+796,Filter,5,Kompressor tilbehør
+246,Sæbe og tilbehør til vask,3,Produkter
+306,Sæbe til vask af transport,4,Sæbe og tilbehør til vask
+251,Gulvvaske sæbe,4,Sæbe og tilbehør til vask
+305,Tilbehør til vask,4,Sæbe og tilbehør til vask
+297,Kemi til algebehandling og fliserens,4,Sæbe og tilbehør til vask
+329,Jumbo vaskesystemer,4,Sæbe og tilbehør til vask
+142,Vandingsudstyr & sprøjter,3,Produkter
+208,Vandingsudstyr,4,Vandingsudstyr & sprøjter
+209,Sprøjtepistoler,5,Vandingsudstyr
+210,Vandings sprinklere,5,Vandingsudstyr
+211,Slanger og slangetromler,5,Vandingsudstyr
+212,Tilslutninger / klik koblinger,5,Vandingsudstyr
+269,Sprøjter,4,Vandingsudstyr & sprøjter
+280,Vandingspumper,4,Vandingsudstyr & sprøjter
+310,12 v pumper,5,Vandingspumper
+32,Batterier og ladere,3,Produkter
+199,Batterier,4,Batterier og ladere
+200,Ladere,4,Batterier og ladere
+300,El Scooter,5,Ladere
+301,Lader til hjem og værksted,5,Ladere
+302,Indbygningslader,5,Ladere
+303,Tilbehør til lader,5,Ladere
+655,Boostere,5,Ladere
+256,Palleløfter mv.,3,Produkter
+648,Palleløftere manuelle,4,Palleløfter mv.
+649,Special palleløftere,4,Palleløfter mv.
+650,Sakseløftere,4,Palleløfter mv.
+651,Selvkørende / elektriske pallevogne,4,Palleløfter mv.
+652,Stablere MX & TX-Serien,4,Palleløfter mv.
+653,Stablere GX-Serien,4,Palleløfter mv.
+654,Stablere LX-Serien,4,Palleløfter mv.
+373,"Slanger, oprullere & tilbehør",3,Produkter
+31,Slangeopruller,4,"Slanger, oprullere & tilbehør"
+384,Automatisk slangeopruller højtryk,5,Slangeopruller
+385,Automatisk slangeopruller til luft,5,Slangeopruller
+387,Automatisk slangeopruller til vand,5,Slangeopruller
+388,Automatisk slangeopruller lavtryk,5,Slangeopruller
+386,Automatisk slangeopruller til diesel,5,Slangeopruller
+389,Automatisk slangeopruller til olie,5,Slangeopruller
+390,Automatisk slangeopruller til gas,5,Slangeopruller
+392,Automatisk slangeopruller til fedt,5,Slangeopruller
+393,Automatisk slangeopruller til Ad blue,5,Slangeopruller
+396,Manuel slangeopruller højtryk,5,Slangeopruller
+421,12v opruller,5,Slangeopruller
+799,Manuel slangeopruller,5,Slangeopruller
+800,Automatisk slangeopruller hygiejnisk,5,Slangeopruller
+374,Slanger,4,"Slanger, oprullere & tilbehør"
+398,Vandslange,5,Slanger
+422,Højtryksslanger,5,Slanger
+323,Slangevogn,4,"Slanger, oprullere & tilbehør"
+491,Kabeloprullere,4,"Slanger, oprullere & tilbehør"
+394,Opruller til afspæring,4,"Slanger, oprullere & tilbehør"
+381,Tilbehør og fittings,4,"Slanger, oprullere & tilbehør"
+382,Sprøjte pistoler,5,Tilbehør og fittings
+383,Koblinger og fittings til slanger,5,Tilbehør og fittings
+408,Fliserens & Algebehandling,3,Produkter
+705,Fliseimprægnering,4,Fliserens & Algebehandling
+731,Rengøringsmidler og Kemiprodukter,3,Produkter
+734,InduClean Kemiprodukter,4,Rengøringsmidler og Kemiprodukter
+739,Autoshampoo,4,Rengøringsmidler og Kemiprodukter
+740,Skyllevoks,4,Rengøringsmidler og Kemiprodukter
+741,Truck cleaner & Ekstremvask,4,Rengøringsmidler og Kemiprodukter
+742,Flyverustfjerner,4,Rengøringsmidler og Kemiprodukter
+743,Kalkfjerner,4,Rengøringsmidler og Kemiprodukter
+744,Universalrens,4,Rengøringsmidler og Kemiprodukter
+746,Sæbe til gulvvaskemaskine og gulvvask,4,Rengøringsmidler og Kemiprodukter
+736,Rengøringsrobotter,3,Produkter
+783,Generator,3,Produkter
+792,Generator Benzin,4,Generator
+784,Generator Diesel,4,Generator
+793,Generatoranlæg,4,Generator
+791,Tilbehør til generator,4,Generator
+790,Affugtere,3,Produkter
+738,Professionelle Affugtere,4,Affugtere
+635,Poolaffugtere,4,Affugtere
+636,Affugtere tilbehør,4,Affugtere
+797,Varmekanoner,3,Produkter
+798,Tilbehør til varmekanoner,4,Varmekanoner
+658,Professionelle varmeblæsere,4,Varmekanoner
+660,Varmekanoner uden skorsten,4,Varmekanoner
+661,Varmekanoner med skorsten,4,Varmekanoner
+664,Gaskanoner,4,Varmekanoner
+665,Infrarød/varmepanel,4,Varmekanoner
+657,Varmeblæsere,4,Varmekanoner
+659,Tilbehør varmeblæsere,4,Varmekanoner
+643,Luftrensere,3,Produkter
+644,Luftrenser tilbehør,4,Luftrensere
+645,Ion anlæg,4,Luftrensere
+639,Ventilatorer,3,Produkter
+640,Ventilatorer tilbehør,4,Ventilatorer
+637,Befugtere,3,Produkter
+641,Aircon,3,Produkter
+668,Husvandværk,3,Produkter
+670,Motorvandpumper,4,Husvandværk
+671,Dykpumper,4,Husvandværk
+647,Måleudstyr,3,Produkter
+33,Service og reparation af rengøringsmaskiner,2,webshop
+145,Reparation højtryksrenser,3,Service og reparation af rengøringsmaskiner
+146,Reparation gulvvaskemaskine,3,Service og reparation af rengøringsmaskiner
+148,Reparation fejemaskine,3,Service og reparation af rengøringsmaskiner
+149,Reparation industristøvsuger,3,Service og reparation af rengøringsmaskiner
+150,Reparation rørføring,3,Service og reparation af rengøringsmaskiner
+21,Leje maskiner,2,webshop
+111,Tilbehør og reservedele,2,webshop
+154,Støvsuger tilbehør,3,Tilbehør og reservedele
+220,Tilbehør til Kärcher støvsuger,4,Støvsuger tilbehør
+155,Støvsugeposer Kärcher,5,Tilbehør til Kärcher støvsuger
+168,Fleecefilterposer til støvsuger,6,Støvsugeposer Kärcher
+169,Papirfilterposer til støvsuger,6,Støvsugeposer Kärcher
+156,Filter til støvsuger Kärcher,5,Tilbehør til Kärcher støvsuger
+157,Mundstykke til støvsuger Kärcher,5,Tilbehør til Kärcher støvsuger
+158,Håndtag til støvsuger Kärcher,5,Tilbehør til Kärcher støvsuger
+159,Forlængerrør til Kärcher støvsuger,5,Tilbehør til Kärcher støvsuger
+160,Støvsugeslange kärcher,5,Tilbehør til Kärcher støvsuger
+181,Reparations sæt til sugeslanger,6,Støvsugeslange kärcher
+182,Sugeslanger (clipsystem),6,Støvsugeslange kärcher
+183,Sugeslanger komplette,6,Støvsugeslange kärcher
+184,Sugeslanger komplette (Clipsystem),6,Støvsugeslange kärcher
+185,Høj tempraturs støvsugeslange,6,Støvsugeslange kärcher
+186,Forbindermuffer,6,Støvsugeslange kärcher
+187,Forlængerslanger (Clipsystem),6,Støvsugeslange kärcher
+188,Tilbehørsæt til støvsuger - Kärcher,5,Tilbehør til Kärcher støvsuger
+221,Tilbehør til Easy Clean støvsuger,4,Støvsuger tilbehør
+202,Tæpperenser tilbehør,3,Tilbehør og reservedele
+203,Kemi til tæpperenser,4,Tæpperenser tilbehør
+218,Tæpperens mundstykker,4,Tæpperenser tilbehør
+331,Tilbehør til Willmop,3,Tilbehør og reservedele
+112,Højtryksrenser tilbehør,3,Tilbehør og reservedele
+113,Højtryksslanger,4,Højtryksrenser tilbehør
+206,Højtryksslange 3/8'',5,Højtryksslanger
+295,Quick kobling,4,Højtryksrenser tilbehør
+115,Pistoler til højtryksrenser,4,Højtryksrenser tilbehør
+116,Skumlanse,4,Højtryksrenser tilbehør
+117,Afspændingsmiddel til hedvandsrenser,4,Højtryksrenser tilbehør
+118,Lanse til højtryksrenser,4,Højtryksrenser tilbehør
+170,Teleskoplanse,5,Lanse til højtryksrenser
+171,Flex lanser,5,Lanse til højtryksrenser
+172,Almindelige lanser,5,Lanse til højtryksrenser
+173,Korte lanser,5,Lanse til højtryksrenser
+278,Easy force højtrykslanser,5,Lanse til højtryksrenser
+132,Vandfilter,4,Højtryksrenser tilbehør
+133,Fliserenser & terrasserenser maskiner,4,Højtryksrenser tilbehør
+272,Algebekæmpelse og fliserens,4,Højtryksrenser tilbehør
+273,Dyser,5,Algebekæmpelse og fliserens
+274,Højtryks lanser,5,Algebekæmpelse og fliserens
+275,Rensekasse til fliserens,5,Algebekæmpelse og fliserens
+276,Imprægnering og universalrens,5,Algebekæmpelse og fliserens
+277,Maskiner til fliserens og algebekæmpelse,5,Algebekæmpelse og fliserens
+144,Kemi til højtryksrenser,4,Højtryksrenser tilbehør
+153,Højtryksdyser,4,Højtryksrenser tilbehør
+114,Roterende turbodyse til højtryksrenser,5,Højtryksdyser
+291,Standard højtryksdyser,5,Højtryksdyser
+292,Variabel højtryksdyser,5,Højtryksdyser
+167,Vaskebørste til højtryksrenser,4,Højtryksrenser tilbehør
+201,Olie til højtryksrenser,4,Højtryksrenser tilbehør
+207,Fittings til højtryk,4,Højtryksrenser tilbehør
+252,Slamsuger til højtryksrenser,4,Højtryksrenser tilbehør
+253,Ukrudtsbekæmpelse,4,Højtryksrenser tilbehør
+296,Rørrensning,4,Højtryksrenser tilbehør
+328,Tankrensning,4,Højtryksrenser tilbehør
+122,Gulvvasker tilbehør,3,Tilbehør og reservedele
+123,Børster til gulvvasker,4,Gulvvasker tilbehør
+131,Børster til Kärcher gulvvaskemaskiner,5,Børster til gulvvasker
+281,Børster til Alto clarke gulvvaskemaskiner,5,Børster til gulvvasker
+282,Børster til Comac gulvvaskemaskiner,5,Børster til gulvvasker
+283,Børster til Dulevo gulvvaskemaskiner,5,Børster til gulvvasker
+284,Børster til Gansow gulvvaskemaskiner,5,Børster til gulvvasker
+285,Børster til Hako gulvvaskemaskiner,5,Børster til gulvvasker
+286,Børster til Nilfisk-Advance gulvvaskemaskiner,5,Børster til gulvvasker
+290,Børster til Taski gulvvaskemaskiner,5,Børster til gulvvasker
+124,Sugegummi til gulvvasker,4,Gulvvasker tilbehør
+127,Valse pads til gulvvasker,4,Gulvvasker tilbehør
+128,Pads,5,Valse pads til gulvvasker
+129,Valseaksel til pads,5,Valse pads til gulvvasker
+189,Kemi til gulvvasker,4,Gulvvasker tilbehør
+426,Maskiner til leje,2,webshop
+427,Gulvvasker,3,Maskiner til leje
+428,Hedvandsrenser,3,Maskiner til leje
+429,Fejemaskiner,3,Maskiner til leje

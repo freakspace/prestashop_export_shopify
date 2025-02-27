@@ -1,6 +1,7 @@
 import os
 import json
 import requests
+from slugify import slugify
 from bs4 import BeautifulSoup
 from ps_services import (
     get_products,
@@ -53,6 +54,7 @@ def clean_html(html_content):
 
 
 def create_shopify_product_input(product, as_set=False):
+    print(f"Processing product: {product['name']['language']['value']}")
     seo = SEO(
         description=product["meta_description"]["language"]["value"],
         title=product["meta_title"]["language"]["value"],
@@ -85,9 +87,9 @@ def create_shopify_product_input(product, as_set=False):
         metafields = [
             ShopifyMetaField(
                 namespace="product_feature",
-                key=get_feature(feature["id"])["product_feature"]["name"]["language"][
+                key=slugify(get_feature(feature["id"])["product_feature"]["name"]["language"][
                     "value"
-                ],
+                ]),
                 value=get_feature_value(feature["id_feature_value"])[
                     "product_feature_value"
                 ]["value"]["language"]["value"],
@@ -147,6 +149,15 @@ def create_shopify_product_input(product, as_set=False):
         type="multi_line_text_field",
     )
     metafields.append(short_description)
+
+    # Add name_extra to metadata
+    name_extra = ShopifyMetaField(
+        namespace="name_extra",
+        key="name_extra",
+        value=product["name_extra"]["language"]["value"],
+        type="single_line_text_field",
+    )
+    metafields.append(name_extra)
 
     def get_option_value(product_option_values_id: int):
         option_value = get_product_option_values(product_option_values_id)
@@ -280,7 +291,7 @@ def create_shopify_product_input(product, as_set=False):
 
 
 def dump_products():
-    products = get_products(id=None, limit=2)
+    products = get_products(id=73, limit=10)
     CREATE_AS_SET = True
     if "products" in products:
         if isinstance(products["products"]["product"], list):

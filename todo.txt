@@ -14,4 +14,6 @@
 # TODO I need to generate alt tag(s)
 # TODO I need to generate title tag and meta description if missing
 # TODO I need to add a log
-# TODO Short description is missing
+# TODO Add categories
+# TODO Add Name extra
+# TODO Add files

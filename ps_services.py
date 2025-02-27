@@ -121,3 +121,32 @@ def get_product_image(id: int):
     ]
 
     return image_data
+
+
+def get_categories(id: int = None, limit: int = 100):
+    if id is None and limit > 1:
+        return prestashop.get(
+            "categories",
+            id,
+            options={"display": "full", "filter[active]": "[1]", "limit": limit},
+        )
+    if id:
+        return prestashop.get("categories", id)
+
+    raise Exception(
+        "get_categories method requires either an id or a limit greater than 1"
+    )
+
+def get_features(id: int = None, limit: int = 999):
+    if id is None and limit > 1:
+        return prestashop.get(
+            "product_features",
+            id,
+            options={"display": "full", "limit": limit},
+        )
+    if id:
+        return prestashop.get("product_features", id)
+
+    raise Exception(
+        "get_categories method requires either an id or a limit greater than 1"
+    )
