@@ -137,6 +137,11 @@ def get_categories(id: int = None, limit: int = 100):
         "get_categories method requires either an id or a limit greater than 1"
     )
 
+
+def get_category(id: int):
+    return prestashop.get("categories", id)
+
+
 def get_features(id: int = None, limit: int = 999):
     if id is None and limit > 1:
         return prestashop.get(

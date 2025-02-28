@@ -13,11 +13,13 @@ from ps_services import (
     get_feature_value,
     get_manufacturer_name,
     get_supplier_name,
+    get_category,
 )
 from shopify_types import (
     CreateShopifyProductInput,
     Product,
     SEO,
+    Image,
     CreateShopifyMediaPayload,
     ShopifyMetaField,
     InventoryItem,
@@ -26,6 +28,7 @@ from shopify_types import (
     ProductOptionValue,
     OptionValue,
     ProductSet,
+    CreateCollectionInput,
 )
 
 DEFAULT_OPTION_NAME = "Title"
@@ -51,6 +54,40 @@ def clean_html(html_content):
         style.decompose()
 
     return str(soup)
+
+
+def create_shopify_collection_input(category):
+    print(category)
+    return CreateCollectionInput(
+        title=category["name"]["language"]["value"],
+        descriptionHtml=clean_html(category["description"]["language"]["value"]),
+        handle=category["link_rewrite"]["language"]["value"],
+        seo=SEO(
+            description=category["meta_description"]["language"]["value"],
+            title=category["meta_title"]["language"]["value"],
+        ),
+        metafields=[
+            ShopifyMetaField(
+                namespace="prestashop_category_id",
+                key="id",
+                value=str(category["id"]),
+                type="single_line_text_field",
+            ),
+            ShopifyMetaField(
+                namespace="parent_category_id",
+                key="id",
+                value=str(category["id_parent"]),
+                type="single_line_text_field",
+            ),
+        ],
+        image=(
+            Image(
+                alt=category["name"]["language"]["value"], src=category["image"]["url"]
+            )
+            if "image" in category
+            else None
+        ),
+    )
 
 
 def create_shopify_product_input(product, as_set=False):
@@ -87,9 +124,11 @@ def create_shopify_product_input(product, as_set=False):
         metafields = [
             ShopifyMetaField(
                 namespace="product_feature",
-                key=slugify(get_feature(feature["id"])["product_feature"]["name"]["language"][
-                    "value"
-                ]),
+                key=slugify(
+                    get_feature(feature["id"])["product_feature"]["name"]["language"][
+                        "value"
+                    ]
+                ),
                 value=get_feature_value(feature["id_feature_value"])[
                     "product_feature_value"
                 ]["value"]["language"]["value"],
@@ -170,6 +209,7 @@ def create_shopify_product_input(product, as_set=False):
         option_name = option["product_option"]["name"]["language"]["value"]
         return option_value_name, option_name
 
+    # TODO Make this as a separate function
     # Extract variants
     variants = []
     option_values = {}
@@ -249,6 +289,13 @@ def create_shopify_product_input(product, as_set=False):
         )
         variants.append(new_variant)
 
+    # Handle collections
+    collections = []
+    for category in product["associations"]["categories"]["category"]:
+        category_instance = get_category(category["id"])
+        collection = create_shopify_collection_input(category_instance["category"])
+        collections.append(collection)
+
     # Create product options
     product_options = [
         ProductOptionValue(
@@ -283,6 +330,7 @@ def create_shopify_product_input(product, as_set=False):
             ),
             metafields=metafields,
             variants=variants,
+            collections=collections,
         )
 
     return CreateShopifyProductInput(

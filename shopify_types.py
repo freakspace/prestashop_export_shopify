@@ -10,7 +10,7 @@ from dataclasses_json import (
 from typing import List, Optional
 
 
-class Mixin(DataClassJsonMixin):
+class ExcludeNullMixin(DataClassJsonMixin):
     dataclass_json_config = config(  # type: ignore
         letter_case=LetterCase.CAMEL,  # type: ignore
         undefined=Undefined.EXCLUDE,
@@ -20,14 +20,21 @@ class Mixin(DataClassJsonMixin):
 
 @dataclass_json
 @dataclass
-class MoneyV2:
+class Image(ExcludeNullMixin):
+    src: str
+    alt: Optional[str] = None
+
+
+@dataclass_json
+@dataclass
+class MoneyV2(ExcludeNullMixin):
     amount: str
     currencyCode: str
 
 
 @dataclass_json
 @dataclass
-class InventoryItem:
+class InventoryItem(ExcludeNullMixin):
     cost: MoneyV2
     sku: str
     tracked: bool
@@ -35,27 +42,27 @@ class InventoryItem:
 
 @dataclass_json
 @dataclass
-class VariantOptionValue:
+class VariantOptionValue(ExcludeNullMixin):
     name: str  # Specifies the product option value by name.
     optionName: str  # Specifies the product option by name.
 
 
 @dataclass_json
 @dataclass
-class OptionValue:
+class OptionValue(ExcludeNullMixin):
     name: str  # Specifies the name of the option value.
 
 
 @dataclass_json
 @dataclass
-class ProductOptionValue:
+class ProductOptionValue(ExcludeNullMixin):
     name: str  # Specifies the product option value by name.
     values: List[OptionValue]  # Specifies the product option by name.
 
 
 @dataclass_json
 @dataclass
-class CreateShopifyProductVariantInput:
+class CreateShopifyProductVariantInput(ExcludeNullMixin):
     barcode: str
     inventoryItem: InventoryItem
     inventoryPolicy: str  # CONTINUE = Customers can buy this product variant after it's out of stock.
@@ -65,14 +72,14 @@ class CreateShopifyProductVariantInput:
 
 @dataclass_json
 @dataclass
-class SEO:
+class SEO(ExcludeNullMixin):
     description: str
     title: str
 
 
 @dataclass_json
 @dataclass
-class Product:
+class Product(ExcludeNullMixin):
     title: str
     descriptionHtml: str
     handle: str
@@ -84,7 +91,7 @@ class Product:
 
 @dataclass_json
 @dataclass
-class CreateShopifyMediaPayload:
+class CreateShopifyMediaPayload(ExcludeNullMixin):
     alt: str
     mediaContentType: str
     originalSource: str
@@ -92,7 +99,7 @@ class CreateShopifyMediaPayload:
 
 @dataclass_json
 @dataclass
-class ShopifyMetaField:
+class ShopifyMetaField(ExcludeNullMixin):
     namespace: str
     key: str
     value: str
@@ -101,7 +108,7 @@ class ShopifyMetaField:
 
 @dataclass_json
 @dataclass
-class CreateShopifyMediaPayload:
+class CreateShopifyMediaPayload(ExcludeNullMixin):
     alt: str
     mediaContentType: str
     originalSource: str
@@ -109,7 +116,7 @@ class CreateShopifyMediaPayload:
 
 @dataclass_json
 @dataclass
-class CreateShopifyProductInput:
+class CreateShopifyProductInput(ExcludeNullMixin):
     product: Product
     media: List[CreateShopifyMediaPayload]
     metafields: List[ShopifyMetaField]
@@ -118,7 +125,18 @@ class CreateShopifyProductInput:
 
 @dataclass_json
 @dataclass
-class ProductSet(Mixin):
+class CreateCollectionInput(ExcludeNullMixin):
+    title: str
+    descriptionHtml: Optional[str] = None
+    image: Optional[Image] = None
+    handle: Optional[str] = None
+    seo: Optional[SEO] = None
+    metafields: Optional[List[ShopifyMetaField]] = None
+
+
+@dataclass_json
+@dataclass
+class ProductSet(ExcludeNullMixin):
     title: str
     descriptionHtml: str
     handle: str
@@ -128,3 +146,4 @@ class ProductSet(Mixin):
     metafields: List[ShopifyMetaField]
     variants: List[CreateShopifyProductVariantInput]
     productOptions: Optional[List[ProductOptionValue]] = None
+    collections: Optional[List[CreateCollectionInput]] = None
