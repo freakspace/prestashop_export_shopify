@@ -33,7 +33,7 @@ from shopify_types import (
 
 DEFAULT_OPTION_NAME = "Title"
 DEFAULT_OPTION_VALUE_NAME = "Default Title"
-
+CATEGORIES_TO_SKIP=["1","2","24","591","584","604","609","597"]
 
 def clean_html(html_content):
     if not html_content:
@@ -57,7 +57,25 @@ def clean_html(html_content):
 
 
 def create_shopify_collection_input(category):
-    print(category)
+    metafields = [
+        ShopifyMetaField(
+            namespace="prestashop_category_id",
+            key="id",
+            value=str(category["id"]),
+            type="single_line_text_field",
+        )
+    ]
+
+    if category["id_parent"] not in CATEGORIES_TO_SKIP:
+        metafields.append(
+            ShopifyMetaField(
+                namespace="parent_category_id",
+                key="id",
+                value=str(category["id_parent"]),
+                type="single_line_text_field",
+            )
+        )
+
     return CreateCollectionInput(
         title=category["name"]["language"]["value"],
         descriptionHtml=clean_html(category["description"]["language"]["value"]),
@@ -66,20 +84,7 @@ def create_shopify_collection_input(category):
             description=category["meta_description"]["language"]["value"],
             title=category["meta_title"]["language"]["value"],
         ),
-        metafields=[
-            ShopifyMetaField(
-                namespace="prestashop_category_id",
-                key="id",
-                value=str(category["id"]),
-                type="single_line_text_field",
-            ),
-            ShopifyMetaField(
-                namespace="parent_category_id",
-                key="id",
-                value=str(category["id_parent"]),
-                type="single_line_text_field",
-            ),
-        ],
+        metafields=metafields,
         image=(
             Image(
                 alt=category["name"]["language"]["value"], src=category["image"]["url"]
@@ -292,9 +297,11 @@ def create_shopify_product_input(product, as_set=False):
     # Handle collections
     collections = []
     for category in product["associations"]["categories"]["category"]:
-        category_instance = get_category(category["id"])
-        collection = create_shopify_collection_input(category_instance["category"])
-        collections.append(collection)
+        category_id = category["id"]
+        if category_id not in CATEGORIES_TO_SKIP:
+            category_instance = get_category(category_id)
+            collection = create_shopify_collection_input(category_instance["category"])
+            collections.append(collection)
 
     # Create product options
     product_options = [
