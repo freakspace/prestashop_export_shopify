@@ -21,6 +21,7 @@ from shopify_types import (
     SEO,
     Image,
     CreateShopifyMediaPayload,
+    File,
     ShopifyMetaField,
     InventoryItem,
     CreateShopifyProductVariantInput,
@@ -62,6 +63,12 @@ def create_shopify_collection_input(category):
             namespace="prestashop_category_id",
             key="id",
             value=str(category["id"]),
+            type="single_line_text_field",
+        ),
+        ShopifyMetaField(
+            namespace="prestashop_posittion",
+            key="position",
+            value=str(category["position"]),
             type="single_line_text_field",
         )
     ]
@@ -115,8 +122,8 @@ def create_shopify_product_input(product, as_set=False):
 
     # Extract media payloads
     media = [
-        CreateShopifyMediaPayload(
-            alt=image["alt"], mediaContentType="IMAGE", originalSource=image["url"]
+        File(
+            alt=image["alt"], contentType="IMAGE", originalSource=image["url"]
         )
         for image in images
     ]
@@ -330,6 +337,7 @@ def create_shopify_product_input(product, as_set=False):
             seo=shopify_product.seo,
             status=shopify_product.status,
             vendor=shopify_product.vendor,
+            files=media,
             productOptions=(
                 shopify_product.productOptions
                 if shopify_product.productOptions
@@ -346,7 +354,7 @@ def create_shopify_product_input(product, as_set=False):
 
 
 def dump_products():
-    products = get_products(id=73, limit=10)
+    products = get_products(id=None, limit=50)
     CREATE_AS_SET = True
     if "products" in products:
         if isinstance(products["products"]["product"], list):

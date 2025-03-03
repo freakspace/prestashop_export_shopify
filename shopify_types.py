@@ -27,6 +27,15 @@ class Image(ExcludeNullMixin):
 
 @dataclass_json
 @dataclass
+class File(ExcludeNullMixin):
+    contentType: str
+    originalSource: str
+    alt: Optional[str] = None
+    filename: Optional[str] = None
+
+
+@dataclass_json
+@dataclass
 class MoneyV2(ExcludeNullMixin):
     amount: str
     currencyCode: str
@@ -143,6 +152,7 @@ class ProductSet(ExcludeNullMixin):
     seo: SEO
     status: str
     vendor: str
+    files: List[File] # TODO Give file a better name
     metafields: List[ShopifyMetaField]
     variants: List[CreateShopifyProductVariantInput]
     productOptions: Optional[List[ProductOptionValue]] = None
