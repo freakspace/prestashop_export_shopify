@@ -94,8 +94,8 @@ class Product(ExcludeNullMixin):
     handle: str
     seo: SEO
     status: str
-    vendor: str
     productOptions: List[ProductOptionValue]
+    vendor: str = "Induclean"
 
 
 @dataclass_json
@@ -152,7 +152,7 @@ class ProductSet(ExcludeNullMixin):
     seo: SEO
     status: str
     vendor: str
-    files: List[File] # TODO Give file a better name
+    files: List[File]  # TODO Give file a better name
     metafields: List[ShopifyMetaField]
     variants: List[CreateShopifyProductVariantInput]
     productOptions: Optional[List[ProductOptionValue]] = None

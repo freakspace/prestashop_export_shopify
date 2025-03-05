@@ -20,16 +20,35 @@ prestashop = PrestaShopWebServiceDict(
     PS_API_KEY,
 )
 
+import random
 
-def get_products(id: int = None, limit: int = 100):
+
+def get_products(id: int = None, limit: int = 100, random_sample: bool = False):
+    if id:
+        return prestashop.get("products", id)
+
+    if random_sample:
+        all_products = prestashop.get("products", options={"filter[active]": "[1]"})[
+            "products"
+        ]["product"]
+        all_product_ids = [product["attrs"]["id"] for product in all_products]
+        rnd_product_ids = random.sample(all_product_ids, k=limit)
+        id_filter = "|".join(map(str, rnd_product_ids))
+        return prestashop.get(
+            "products",
+            options={
+                "display": "full",
+                "filter[active]": "[1]",
+                "filter[id]": f"[{id_filter}]",
+            },
+        )
+
     if id is None and limit > 1:
         return prestashop.get(
             "products",
             id,
             options={"display": "full", "filter[active]": "[1]", "limit": limit},
         )
-    if id:
-        return prestashop.get("products", id)
 
     raise Exception(
         "get_products method requires either an id or a limit greater than 1"

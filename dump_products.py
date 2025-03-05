@@ -34,7 +34,8 @@ from shopify_types import (
 
 DEFAULT_OPTION_NAME = "Title"
 DEFAULT_OPTION_VALUE_NAME = "Default Title"
-CATEGORIES_TO_SKIP=["1","2","24","591","584","604","609","597"]
+CATEGORIES_TO_SKIP = ["1", "2", "24", "591", "584", "604", "609", "597"]
+
 
 def clean_html(html_content):
     if not html_content:
@@ -70,7 +71,7 @@ def create_shopify_collection_input(category):
             key="position",
             value=str(category["position"]),
             type="single_line_text_field",
-        )
+        ),
     ]
 
     if category["id_parent"] not in CATEGORIES_TO_SKIP:
@@ -103,7 +104,9 @@ def create_shopify_collection_input(category):
 
 
 def create_shopify_product_input(product, as_set=False):
-    print(f"Processing product: {product['name']['language']['value']}")
+    print(
+        f"Processing product: {product['name']['language']['value']}, ID: {product['id']}"
+    )
     seo = SEO(
         description=product["meta_description"]["language"]["value"],
         title=product["meta_title"]["language"]["value"],
@@ -122,9 +125,7 @@ def create_shopify_product_input(product, as_set=False):
 
     # Extract media payloads
     media = [
-        File(
-            alt=image["alt"], contentType="IMAGE", originalSource=image["url"]
-        )
+        File(alt=image["alt"], contentType="IMAGE", originalSource=image["url"])
         for image in images
     ]
 
@@ -303,8 +304,22 @@ def create_shopify_product_input(product, as_set=False):
 
     # Handle collections
     collections = []
-    for category in product["associations"]["categories"]["category"]:
-        category_id = category["id"]
+    category_payload = product["associations"]["categories"]["category"]
+    if isinstance(category_payload, list):
+        for category in category_payload:
+            try:
+                category_id = category["id"]
+            except TypeError:
+                raise Exception("Failed to get category ID")
+
+            if category_id not in CATEGORIES_TO_SKIP:
+                category_instance = get_category(category_id)
+                collection = create_shopify_collection_input(
+                    category_instance["category"]
+                )
+                collections.append(collection)
+    else:
+        category_id = category_payload["id"]
         if category_id not in CATEGORIES_TO_SKIP:
             category_instance = get_category(category_id)
             collection = create_shopify_collection_input(category_instance["category"])
@@ -354,7 +369,7 @@ def create_shopify_product_input(product, as_set=False):
 
 
 def dump_products():
-    products = get_products(id=None, limit=50)
+    products = get_products(id=None, limit=5, random_sample=True)
     CREATE_AS_SET = True
     if "products" in products:
         if isinstance(products["products"]["product"], list):
