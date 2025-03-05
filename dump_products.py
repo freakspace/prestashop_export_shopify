@@ -133,24 +133,44 @@ def create_shopify_product_input(product, as_set=False):
 
     # Handle product features as metafields in Shopify
     if "product_feature" in product["associations"]["product_features"]:
-        # Extract metafields
-        metafields = [
-            ShopifyMetaField(
-                namespace="product_feature",
-                key=slugify(
-                    get_feature(feature["id"])["product_feature"]["name"]["language"][
-                        "value"
-                    ]
-                ),
-                value=get_feature_value(feature["id_feature_value"])[
-                    "product_feature_value"
-                ]["value"]["language"]["value"],
-                type="single_line_text_field",
-            )
-            for feature in product["associations"]["product_features"][
-                "product_feature"
-            ]
+        features_payload = product["associations"]["product_features"][
+            "product_feature"
         ]
+        # Multiple features
+        if isinstance(features_payload, list):
+            # Extract metafields
+            metafields = [
+                ShopifyMetaField(
+                    namespace="product_feature",
+                    key=slugify(
+                        get_feature(feature["id"])["product_feature"]["name"][
+                            "language"
+                        ]["value"]
+                    ),
+                    value=get_feature_value(feature["id_feature_value"])[
+                        "product_feature_value"
+                    ]["value"]["language"]["value"],
+                    type="single_line_text_field",
+                )
+                for feature in features_payload
+            ]
+        # Single feature
+        else:
+            # Extract metafields
+            metafields = [
+                ShopifyMetaField(
+                    namespace="product_feature",
+                    key=slugify(
+                        get_feature(features_payload["id"])["product_feature"]["name"][
+                            "language"
+                        ]["value"]
+                    ),
+                    value=get_feature_value(features_payload["id_feature_value"])[
+                        "product_feature_value"
+                    ]["value"]["language"]["value"],
+                    type="single_line_text_field",
+                )
+            ]
 
     # Add prestashop product to metadata
     prestashop_product_id = ShopifyMetaField(
@@ -369,7 +389,7 @@ def create_shopify_product_input(product, as_set=False):
 
 
 def dump_products():
-    products = get_products(id=None, limit=5, random_sample=True)
+    products = get_products(id=None, limit=50, random_sample=True)
     CREATE_AS_SET = True
     if "products" in products:
         if isinstance(products["products"]["product"], list):
@@ -391,6 +411,7 @@ def dump_products():
     if not os.path.exists("dump"):
         os.makedirs("dump")
 
-    # Save the Shopify product inputs as JSON
-    with open(os.path.join("dump", "shopify_products.json"), "w") as f:
-        json.dump([product.to_dict() for product in shopify_products], f, indent=2)
+    else:
+        # Save the Shopify product inputs as JSON
+        with open(os.path.join("dump", "shopify_products.json"), "w") as f:
+            json.dump([product.to_dict() for product in shopify_products], f, indent=2)

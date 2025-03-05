@@ -28,6 +28,7 @@ def get_products(id: int = None, limit: int = 100, random_sample: bool = False):
         return prestashop.get("products", id)
 
     if random_sample:
+        print("Gettung random sample")
         all_products = prestashop.get("products", options={"filter[active]": "[1]"})[
             "products"
         ]["product"]
