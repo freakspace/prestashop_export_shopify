@@ -19,7 +19,7 @@ def convert_to_jsonl():
         ) as f:
             for item in data:
                 # Dump each item as a single line JSON object
-                json.dump(item, f, ensure_ascii=False)
+                json.dump({"input": item}, f, ensure_ascii=False)
                 f.write("\n")  # Write each JSON object on a new line
 
         print("JSONL file created successfully.")

@@ -1,6 +1,7 @@
 import os
+import random
 
-from prestapyt import PrestaShopWebServiceDict
+from prestapyt import PrestaShopWebServiceDict, PrestaShopWebServiceError
 
 from dotenv import load_dotenv
 
@@ -20,15 +21,12 @@ prestashop = PrestaShopWebServiceDict(
     PS_API_KEY,
 )
 
-import random
-
 
 def get_products(id: int = None, limit: int = 100, random_sample: bool = False):
     if id:
         return prestashop.get("products", id)
 
     if random_sample:
-        print("Gettung random sample")
         all_products = prestashop.get("products", options={"filter[active]": "[1]"})[
             "products"
         ]["product"]
@@ -81,7 +79,10 @@ def get_product_option_values(id: int):
 
 
 def get_product_option(id: int):
-    return prestashop.get("product_options", id)
+    try:
+        return prestashop.get("product_options", id)
+    except PrestaShopWebServiceError as e:
+        return None
 
 
 def get_manufacturer(id: int):
@@ -120,8 +121,10 @@ def get_supplier_name(id: int):
 
 
 def get_product_image(id: int):
-    images = prestashop.get("images/products", id)
-
+    try:
+        images = prestashop.get("images/products", id)
+    except PrestaShopWebServiceError as e:
+        return None
     # Check if declination is a list or a dictionary
     declinations = images["image"]["declination"]
 

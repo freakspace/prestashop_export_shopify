@@ -35,6 +35,7 @@ from shopify_types import (
 DEFAULT_OPTION_NAME = "Title"
 DEFAULT_OPTION_VALUE_NAME = "Default Title"
 CATEGORIES_TO_SKIP = ["1", "2", "24", "591", "584", "604", "609", "597"]
+PRODUCTS_TO_SKIP = ["738"]
 
 
 def clean_html(html_content):
@@ -102,8 +103,82 @@ def create_shopify_collection_input(category):
         ),
     )
 
+def get_option_value(product_option_values_id: int):
+        option_value = get_product_option_values(product_option_values_id)
+        option_value_name = option_value["product_option_value"]["name"]["language"][
+            "value"
+        ]
+        option = get_product_option(
+            option_value["product_option_value"]["id_attribute_group"]
+        )
+        if option is None:
+            return None, None
+        option_name = option["product_option"]["name"]["language"]["value"]
+        return option_value_name, option_name
+
+
+def create_shopify_product_variant_input(combination_id, option_values):
+    variant = get_combination(combination_id)
+    variant_option_values = []
+    if (
+        "associations" in variant["combination"]
+        and "product_option_values" in variant["combination"]["associations"]
+    ):
+
+        variants_payload = variant["combination"]["associations"][
+            "product_option_values"
+        ]["product_option_value"]
+        # Single option
+        if isinstance(variants_payload, dict):
+            option_value_id = variants_payload["id"]
+            option_value_name, option_name = get_option_value(option_value_id)
+            if not all([option_value_name, option_name]):
+                return None, option_values
+            variant_option_values.append(
+                VariantOptionValue(
+                    name=option_value_name, optionName=option_name
+                )
+            )
+            if option_name not in option_values:
+                option_values[option_name] = set()
+            option_values[option_name].add(option_value_name)
+
+        # Multiple options
+        else:
+            for option_value in variants_payload:
+                option_value_name, option_name = get_option_value(
+                    option_value["id"]
+                )
+                variant_option_values.append(
+                    VariantOptionValue(
+                        name=option_value_name, optionName=option_name
+                    )
+                )
+                if option_name not in option_values:
+                    option_values[option_name] = set()
+                option_values[option_name].add(option_value_name)
+    
+        variant_input = CreateShopifyProductVariantInput(
+                barcode=variant["combination"]["ean13"],
+                inventoryItem=InventoryItem(
+                    cost=str(
+                        float(variant["combination"]["wholesale_price"])
+                    ),  # Using wholesale price as cost price
+                    sku=variant["combination"]["reference"],
+                    tracked=True,
+                ),
+                inventoryPolicy="CONTINUE",  # CONTINUE = Customers can buy this product variant after it's out of stock.
+                optionValues=variant_option_values,
+                price=str(float(variant["combination"]["price"])),
+            )
+        
+        return variant_input, option_values
+    return None, option_values
 
 def create_shopify_product_input(product, as_set=False):
+    if product["id"] in PRODUCTS_TO_SKIP:
+        print(f"Skipping product: {product['name']['language']['value']}")
+        return None
     print(
         f"Processing product: {product['name']['language']['value']}, ID: {product['id']}"
     )
@@ -124,10 +199,14 @@ def create_shopify_product_input(product, as_set=False):
     images = get_product_image(product["id"])
 
     # Extract media payloads
-    media = [
-        File(alt=image["alt"], contentType="IMAGE", originalSource=image["url"])
-        for image in images
-    ]
+    media = (
+        [
+            File(alt=image["alt"], contentType="IMAGE", originalSource=image["url"])
+            for image in images
+        ]
+        if images
+        else []
+    )
 
     metafields = []
 
@@ -231,17 +310,6 @@ def create_shopify_product_input(product, as_set=False):
     )
     metafields.append(name_extra)
 
-    def get_option_value(product_option_values_id: int):
-        option_value = get_product_option_values(product_option_values_id)
-        option_value_name = option_value["product_option_value"]["name"]["language"][
-            "value"
-        ]
-        option = get_product_option(
-            option_value["product_option_value"]["id_attribute_group"]
-        )
-        option_name = option["product_option"]["name"]["language"]["value"]
-        return option_value_name, option_name
-
     # TODO Make this as a separate function
     # Extract variants
     variants = []
@@ -249,60 +317,22 @@ def create_shopify_product_input(product, as_set=False):
     if (
         "combinations" in product["associations"]
         and "combination" in product["associations"]["combinations"]
-    ):
-        for combination in product["associations"]["combinations"]["combination"]:
-            variant = get_combination(combination["id"])
-            variant_option_values = []
-            if (
-                "associations" in variant["combination"]
-                and "product_option_values" in variant["combination"]["associations"]
-            ):
-
-                variants_payload = variant["combination"]["associations"][
-                    "product_option_values"
-                ]["product_option_value"]
-                # Single option
-                if isinstance(variants_payload, dict):
-                    option_value_id = variants_payload["id"]
-                    option_value_name, option_name = get_option_value(option_value_id)
-                    variant_option_values.append(
-                        VariantOptionValue(
-                            name=option_value_name, optionName=option_name
-                        )
+    ):  
+        combination_payload = product["associations"]["combinations"]["combination"]
+        if isinstance(combination_payload, dict):
+            combination_id = combination_payload["id"]
+            # TODO Maybe construct a default variant instead, if there is only 1 option
+            variant_input, _ = create_shopify_product_variant_input(combination_id, option_values)
+            if variant_input:
+                variants.append(
+                    variant_input)
+        else:
+            for combination in product["associations"]["combinations"]["combination"]:
+                variant_input, option_values = create_shopify_product_variant_input(combination["id"], option_values)
+                if variant_input:
+                    variants.append(
+                        variant_input
                     )
-                    if option_name not in option_values:
-                        option_values[option_name] = set()
-                    option_values[option_name].add(option_value_name)
-
-                # Multiple options
-                else:
-                    for option_value in variants_payload:
-                        option_value_name, option_name = get_option_value(
-                            option_value["id"]
-                        )
-                        variant_option_values.append(
-                            VariantOptionValue(
-                                name=option_value_name, optionName=option_name
-                            )
-                        )
-                        if option_name not in option_values:
-                            option_values[option_name] = set()
-                        option_values[option_name].add(option_value_name)
-            variants.append(
-                CreateShopifyProductVariantInput(
-                    barcode=variant["combination"]["ean13"],
-                    inventoryItem=InventoryItem(
-                        cost=str(
-                            float(variant["combination"]["wholesale_price"])
-                        ),  # Using wholesale price as cost price
-                        sku=variant["combination"]["reference"],
-                        tracked=True,
-                    ),
-                    inventoryPolicy="CONTINUE",  # CONTINUE = Customers can buy this product variant after it's out of stock.
-                    optionValues=variant_option_values,
-                    price=str(float(variant["combination"]["price"])),
-                )
-            )
     else:
         # Construct a single Variant since Shopify requires at least 1 variant
         new_variant = CreateShopifyProductVariantInput(
@@ -380,7 +410,7 @@ def create_shopify_product_input(product, as_set=False):
             ),
             metafields=metafields,
             variants=variants,
-            collections=collections,
+            # collections=collections,
         )
 
     return CreateShopifyProductInput(
@@ -389,7 +419,7 @@ def create_shopify_product_input(product, as_set=False):
 
 
 def dump_products():
-    products = get_products(id=None, limit=50, random_sample=True)
+    products = get_products(id=None, limit=100, random_sample=True)
     CREATE_AS_SET = True
     if "products" in products:
         if isinstance(products["products"]["product"], list):
