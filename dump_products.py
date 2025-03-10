@@ -185,7 +185,6 @@ def create_shopify_product_input(product, as_set=False):
     )
     base_price = float(product["price"])
     wholesale_price = float(product["wholesale_price"])
-    print(f"WHOLESALE PRICE: {wholesale_price}")
     seo = SEO(
         description=product["meta_description"]["language"]["value"],
         title=product["meta_title"]["language"]["value"],
@@ -401,6 +400,7 @@ def create_shopify_product_input(product, as_set=False):
     if as_set:
 
         return ProductSet(
+            # id="gid://shopify/Product/10079785100",
             title=shopify_product.title,
             descriptionHtml=shopify_product.descriptionHtml,
             handle=shopify_product.handle,
@@ -415,7 +415,7 @@ def create_shopify_product_input(product, as_set=False):
             ),
             metafields=metafields,
             variants=variants,
-            # collections=collections,
+            # TODO collections=collections,
         )
 
     return CreateShopifyProductInput(
@@ -424,7 +424,7 @@ def create_shopify_product_input(product, as_set=False):
 
 
 def dump_products():
-    products = get_products(id=1448, limit=100, random_sample=True)
+    products = get_products(id=None, limit=20, random_sample=True)
     CREATE_AS_SET = True
     if "products" in products:
         if isinstance(products["products"]["product"], list):

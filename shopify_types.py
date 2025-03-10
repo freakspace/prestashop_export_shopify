@@ -155,5 +155,6 @@ class ProductSet(ExcludeNullMixin):
     files: List[File]  # TODO Give file a better name
     metafields: List[ShopifyMetaField]
     variants: List[CreateShopifyProductVariantInput]
+    id: Optional[str] = None # Supply id if updating an existing product
     productOptions: Optional[List[ProductOptionValue]] = None
     collections: Optional[List[CreateCollectionInput]] = None
