@@ -415,7 +415,7 @@ def create_shopify_product_input(product, as_set=False):
             ),
             metafields=metafields,
             variants=variants,
-            # TODO collections=collections,
+            collections=collections,
         )
 
     return CreateShopifyProductInput(
