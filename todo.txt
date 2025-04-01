@@ -5,3 +5,6 @@
 # TODO Add categories
 # TODO Add files    
 # TODO I need a way to check which products has NOT been created
+# TODO Default title for variant should be different as its shown in the cart and url
+# TODO Make sure handle is unique
+# TODO Maximum 100 variants (there are 136 for reperation)

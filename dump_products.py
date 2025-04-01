@@ -263,14 +263,17 @@ def create_shopify_product_input(product, as_set=False):
     )
     metafields.append(prestashop_product_id)
 
-    # Add prestashop reference to metadata
-    prestashop_reference = ShopifyMetaField(
-        namespace="prestashop_reference",
-        key="reference",
-        value=product["reference"],
-        type="single_line_text_field",
-    )
-    metafields.append(prestashop_reference)
+    # Add product reference to metadata
+    product_reference = product["reference"]
+    if product_reference:
+        # Add prestashop reference to metadata
+        prestashop_reference = ShopifyMetaField(
+            namespace="prestashop_reference",
+            key="reference",
+            value=product["reference"],
+            type="single_line_text_field",
+        )
+        metafields.append(prestashop_reference)
 
     # Add prestashop url to metadata
     product_id = product["id"]
@@ -296,22 +299,26 @@ def create_shopify_product_input(product, as_set=False):
         metafields.append(supplier)
 
     # Add short_description to metadata
-    short_description = ShopifyMetaField(
-        namespace="short_description",
-        key="description",
-        value=product["description_short"]["language"]["value"],
-        type="multi_line_text_field",
-    )
-    metafields.append(short_description)
+    product_short_description = product["description_short"]["language"]["value"]
+    if product_short_description:
+        short_description = ShopifyMetaField(
+            namespace="short_description",
+            key="description",
+            value=product["description_short"]["language"]["value"],
+            type="multi_line_text_field",
+        )
+        metafields.append(short_description)
 
     # Add name_extra to metadata
-    name_extra = ShopifyMetaField(
-        namespace="name_extra",
-        key="name_extra",
-        value=product["name_extra"]["language"]["value"],
-        type="single_line_text_field",
-    )
-    metafields.append(name_extra)
+    product_name_extra = product["name_extra"]["language"]["value"]
+    if product_name_extra:
+        name_extra = ShopifyMetaField(
+            namespace="name_extra",
+            key="name_extra",
+            value=product["name_extra"]["language"]["value"],
+            type="single_line_text_field",
+        )
+        metafields.append(name_extra)
 
     # TODO Make this as a separate function
     # Extract variants
@@ -424,7 +431,7 @@ def create_shopify_product_input(product, as_set=False):
 
 
 def dump_products():
-    products = get_products(id=None, limit=20, random_sample=True)
+    products = get_products(id=None, limit=100, random_sample=True)
     CREATE_AS_SET = True
     if "products" in products:
         if isinstance(products["products"]["product"], list):
