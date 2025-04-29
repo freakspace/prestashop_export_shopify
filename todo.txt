@@ -8,3 +8,6 @@
 # TODO Default title for variant should be different as its shown in the cart and url
 # TODO Make sure handle is unique
 # TODO Maximum 100 variants (there are 136 for reperation)
+# TODO The parent category id is ps id, but if i create a new collection in the future, how do i set the relationship?
+# TODO I need to define a new metafield for parent collections, and the make a script to set appropriate collection based on prestashop id (A one time task)
+# TODO I dont think the script supports multiple parent category ids

@@ -73,6 +73,7 @@ def create_shopify_collection_input(category):
             value=str(category["position"]),
             type="single_line_text_field",
         ),
+        # TODO Need the old URL
     ]
 
     if category["id_parent"] not in CATEGORIES_TO_SKIP:
@@ -431,7 +432,7 @@ def create_shopify_product_input(product, as_set=False):
 
 
 def dump_products():
-    products = get_products(id=None, limit=100, random_sample=True)
+    products = get_products(id=None, limit=200, random_sample=True)
     CREATE_AS_SET = True
     if "products" in products:
         if isinstance(products["products"]["product"], list):
