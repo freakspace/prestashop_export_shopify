@@ -12,6 +12,7 @@ from ps_services import (
     get_feature,
     get_feature_value,
     get_manufacturer_name,
+    get_manufacturer,
     get_supplier_name,
     get_category,
 )
@@ -30,6 +31,7 @@ from shopify_types import (
     OptionValue,
     ProductSet,
     CreateCollectionInput,
+    CreateBrandInput,
 )
 
 DEFAULT_OPTION_NAME = "Title"
@@ -86,6 +88,9 @@ def create_shopify_collection_input(category):
             )
         )
 
+    # Filter out metafields with None values
+    metafields = [metafield for metafield in metafields if metafield.value not in [None, ""]]
+
     return CreateCollectionInput(
         title=category["name"]["language"]["value"],
         descriptionHtml=clean_html(category["description"]["language"]["value"]),
@@ -102,6 +107,21 @@ def create_shopify_collection_input(category):
             if "image" in category
             else None
         ),
+    )
+
+
+def create_shopify_brand_input(manufacturer):
+    return CreateBrandInput(
+        name=manufacturer["manufacturer"]["name"],
+        description=manufacturer["manufacturer"]["description"]["language"]["value"],
+        short_description=manufacturer["manufacturer"]["short_description"]["language"][
+            "value"
+        ],
+        meta_title=manufacturer["manufacturer"]["meta_title"]["language"]["value"],
+        meta_description=manufacturer["manufacturer"]["meta_description"]["language"][
+            "value"
+        ],
+        handle=manufacturer["manufacturer"]["link_rewrite"]["value"],
     )
 
 
@@ -196,7 +216,7 @@ def create_shopify_product_input(product, as_set=False):
         handle=product["link_rewrite"]["language"]["value"],
         seo=seo,
         status="ACTIVE",
-        vendor=get_manufacturer_name(product["id_manufacturer"]),
+        # vendor=get_manufacturer_name(product["id_manufacturer"]),
         productOptions=[],
     )
     # Image URLs
@@ -387,6 +407,14 @@ def create_shopify_product_input(product, as_set=False):
             collection = create_shopify_collection_input(category_instance["category"])
             collections.append(collection)
 
+    # Handle brands
+    shopify_brand_input = None
+    manufacturer_id = product["id_manufacturer"]
+    if manufacturer_id != "0":
+        manufacturer_instance = get_manufacturer(manufacturer_id)
+        if manufacturer_instance:
+            shopify_brand_input = create_shopify_brand_input(manufacturer_instance)
+
     # Create product options
     product_options = [
         ProductOptionValue(
@@ -405,16 +433,20 @@ def create_shopify_product_input(product, as_set=False):
                 values=[OptionValue(name=DEFAULT_OPTION_VALUE_NAME)],
             )
         ]
+
+    # Filter out metafields with None values
+    metafields = [metafield for metafield in metafields if metafield.value not in [None, ""]]
+
     if as_set:
 
         return ProductSet(
-            # id="gid://shopify/Product/10079785100",
+            # id="gid://shopify/Product/10079785100", pass id to update
             title=shopify_product.title,
             descriptionHtml=shopify_product.descriptionHtml,
             handle=shopify_product.handle,
             seo=shopify_product.seo,
             status=shopify_product.status,
-            vendor=shopify_product.vendor,
+            # vendor=shopify_product.vendor,
             files=media,
             productOptions=(
                 shopify_product.productOptions
@@ -424,6 +456,7 @@ def create_shopify_product_input(product, as_set=False):
             metafields=metafields,
             variants=variants,
             collections=collections,
+            brand=shopify_brand_input,
         )
 
     return CreateShopifyProductInput(

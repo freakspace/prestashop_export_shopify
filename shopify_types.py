@@ -145,16 +145,31 @@ class CreateCollectionInput(ExcludeNullMixin):
 
 @dataclass_json
 @dataclass
+class CreateBrandInput(ExcludeNullMixin):
+    name: str
+    description: Optional[str] = None
+    short_description: Optional[str] = None
+    meta_title: Optional[str] = None
+    meta_description: Optional[str] = None
+    handle: Optional[str] = None
+
+
+@dataclass_json
+@dataclass
 class ProductSet(ExcludeNullMixin):
+    # Requried fields
     title: str
     descriptionHtml: str
     handle: str
     seo: SEO
     status: str
-    vendor: str
     files: List[File]  # TODO Give file a better name
     metafields: List[ShopifyMetaField]
     variants: List[CreateShopifyProductVariantInput]
+
+    # Optional fields
+    vendor: Optional[str] = None
     id: Optional[str] = None  # Supply id if updating an existing product
     productOptions: Optional[List[ProductOptionValue]] = None
     collections: Optional[List[CreateCollectionInput]] = None
+    brand: Optional[CreateBrandInput] = None
