@@ -8,7 +8,7 @@ def convert_to_jsonl():
 
     try:
         # Step 1: Load the existing JSON file
-        with open("dump/shopify_products.json", "r", encoding="utf-8") as f:
+        with open("dump/transformed_shopify_products.json", "r", encoding="utf-8") as f:
             data = json.load(
                 f
             )  # Assuming the JSON file contains a list or other iterable structure

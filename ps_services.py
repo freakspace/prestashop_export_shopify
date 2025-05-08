@@ -86,7 +86,6 @@ def get_product_option(id: int):
 
 
 def get_manufacturer(id: int):
-    print(f"Getting manufacturer {id}")
     try:
         return prestashop.get("manufacturers", id)
     except PrestaShopWebServiceError as e:

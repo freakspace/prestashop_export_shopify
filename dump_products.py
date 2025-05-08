@@ -1,7 +1,6 @@
 import os
 import json
 import requests
-from slugify import slugify
 from bs4 import BeautifulSoup
 from ps_services import (
     get_products,
@@ -11,17 +10,16 @@ from ps_services import (
     get_combination,
     get_feature,
     get_feature_value,
-    get_manufacturer_name,
     get_manufacturer,
     get_supplier_name,
     get_category,
 )
+
 from shopify_types import (
     CreateShopifyProductInput,
     Product,
     SEO,
     Image,
-    CreateShopifyMediaPayload,
     File,
     ShopifyMetaField,
     InventoryItem,
@@ -40,6 +38,10 @@ CATEGORIES_TO_SKIP = ["1", "2", "24", "591", "584", "604", "609", "597"]
 PRODUCTS_TO_SKIP = ["738"]
 
 
+# TODO Default title - maybe use product name?
+# TODO nogen billeder fra karcher komemr med selvom de ikke er synlige i PS (måske bare fiks det manuelt)
+# TODO For the ongoing sync i need to handle cases where they send new product features to prevent dublicates
+# TODO For dublicated values like længde, maybe just skip it, and it will be update at the first sync
 def clean_html(html_content):
     if not html_content:
         return ""
@@ -89,7 +91,9 @@ def create_shopify_collection_input(category):
         )
 
     # Filter out metafields with None values
-    metafields = [metafield for metafield in metafields if metafield.value not in [None, ""]]
+    metafields = [
+        metafield for metafield in metafields if metafield.value not in [None, ""]
+    ]
 
     return CreateCollectionInput(
         title=category["name"]["language"]["value"],
@@ -245,11 +249,9 @@ def create_shopify_product_input(product, as_set=False):
             metafields = [
                 ShopifyMetaField(
                     namespace="product_feature",
-                    key=slugify(
-                        get_feature(feature["id"])["product_feature"]["name"][
-                            "language"
-                        ]["value"]
-                    ),
+                    key=get_feature(feature["id"])["product_feature"]["name"][
+                        "language"
+                    ]["value"],
                     value=get_feature_value(feature["id_feature_value"])[
                         "product_feature_value"
                     ]["value"]["language"]["value"],
@@ -263,11 +265,9 @@ def create_shopify_product_input(product, as_set=False):
             metafields = [
                 ShopifyMetaField(
                     namespace="product_feature",
-                    key=slugify(
-                        get_feature(features_payload["id"])["product_feature"]["name"][
-                            "language"
-                        ]["value"]
-                    ),
+                    key=get_feature(features_payload["id"])["product_feature"]["name"][
+                        "language"
+                    ]["value"],
                     value=get_feature_value(features_payload["id_feature_value"])[
                         "product_feature_value"
                     ]["value"]["language"]["value"],
@@ -435,7 +435,9 @@ def create_shopify_product_input(product, as_set=False):
         ]
 
     # Filter out metafields with None values
-    metafields = [metafield for metafield in metafields if metafield.value not in [None, ""]]
+    metafields = [
+        metafield for metafield in metafields if metafield.value not in [None, ""]
+    ]
 
     if as_set:
 
@@ -465,7 +467,7 @@ def create_shopify_product_input(product, as_set=False):
 
 
 def dump_products():
-    products = get_products(id=None, limit=200, random_sample=True)
+    products = get_products(id=None, limit=50, random_sample=True)
     CREATE_AS_SET = True
     if "products" in products:
         if isinstance(products["products"]["product"], list):
