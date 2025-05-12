@@ -30,7 +30,7 @@ from shopify_types import (
     ProductSet,
     CreateCollectionInput,
     CreateBrandInput,
-    MetaobjectHandle
+    MetaobjectHandle,
 )
 
 DEFAULT_OPTION_NAME = "Title"
@@ -46,6 +46,9 @@ PRODUCTS_TO_SKIP = ["738"]
 # TODO If metafield value is a list, all of the values has to be a list
 # TODO Brands is not getting created properly - missing data in shopify
 # TODO There might be an issue where categories share same names, its not set correct -  see product 762
+# TODO Need to create script to convert description to RTF
+
+
 def clean_html(html_content):
     if not html_content:
         return ""
@@ -66,7 +69,9 @@ def clean_html(html_content):
 
     return str(soup)
 
+
 used_handles = set()
+
 
 def ensure_unique_handle(handle):
     """
@@ -79,6 +84,7 @@ def ensure_unique_handle(handle):
         counter += 1
     used_handles.add(handle)
     return handle
+
 
 def create_shopify_collection_input(category):
     metafields = [
@@ -142,7 +148,9 @@ def create_shopify_brand_input(manufacturer):
         meta_description=manufacturer["manufacturer"]["meta_description"]["language"][
             "value"
         ],
-        handle=MetaobjectHandle(handle=manufacturer["manufacturer"]["link_rewrite"]["value"], type="brand"),
+        handle=MetaobjectHandle(
+            handle=manufacturer["manufacturer"]["link_rewrite"]["value"], type="brand"
+        ),
     )
 
 
@@ -231,9 +239,15 @@ def create_shopify_product_input(product, as_set=False):
         description=product["meta_description"]["language"]["value"],
         title=product["meta_title"]["language"]["value"],
     )
+
+    try:
+        short_description = product["description_short"]["language"]["value"]
+    except KeyError:
+        short_description = ""
+
     shopify_product = Product(
         title=product["name"]["language"]["value"],
-        descriptionHtml=clean_html(product["description"]["language"]["value"]),
+        descriptionHtml=short_description,
         handle=ensure_unique_handle(product["link_rewrite"]["language"]["value"]),
         seo=seo,
         status="ACTIVE",
@@ -329,7 +343,7 @@ def create_shopify_product_input(product, as_set=False):
     supplier_name = get_supplier_name(product["id_supplier"])
     if supplier_name:
         supplier = ShopifyMetaField(
-            namespace="supplier",
+            namespace="prestashop",
             key="supplier",
             value=supplier_name,
             type="single_line_text_field",
@@ -337,15 +351,15 @@ def create_shopify_product_input(product, as_set=False):
         metafields.append(supplier)
 
     # Add short_description to metadata
-    product_short_description = product["description_short"]["language"]["value"]
-    if product_short_description:
-        short_description = ShopifyMetaField(
-            namespace="short_description",
+    description = product["description"]["language"]["value"]
+    if description:
+        description = ShopifyMetaField(
+            namespace="prestashop",
             key="description",
-            value=product["description_short"]["language"]["value"],
+            value=product["description"]["language"]["value"],
             type="multi_line_text_field",
         )
-        metafields.append(short_description)
+        metafields.append(description)
 
     # Add name_extra to metadata
     product_name_extra = product["name_extra"]["language"]["value"]
@@ -395,7 +409,8 @@ def create_shopify_product_input(product, as_set=False):
             price=str(base_price),
             optionValues=[
                 VariantOptionValue(
-                    name=product["name"]["language"]["value"], optionName=DEFAULT_OPTION_NAME
+                    name=product["name"]["language"]["value"],
+                    optionName=DEFAULT_OPTION_NAME,
                 )
             ],
         )
@@ -482,6 +497,7 @@ def create_shopify_product_input(product, as_set=False):
         product=shopify_product, media=media, metafields=metafields, variants=variants
     )
 
+
 def dump_products():
     products = get_products(id=None, limit=50, random_sample=True)
     CREATE_AS_SET = True
@@ -508,6 +524,14 @@ def dump_products():
     else:
         # Save the Shopify product inputs as JSON
         with open(os.path.join("dump", "shopify_products.json"), "w") as f:
-            json.dump([product.to_dict() for product in shopify_products if product is not None], f, indent=2)
+            json.dump(
+                [
+                    product.to_dict()
+                    for product in shopify_products
+                    if product is not None
+                ],
+                f,
+                indent=2,
+            )
 
     return "dump/shopify_products.json"

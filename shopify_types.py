@@ -142,6 +142,7 @@ class CreateCollectionInput(ExcludeNullMixin):
     seo: Optional[SEO] = None
     metafields: Optional[List[ShopifyMetaField]] = None
 
+
 @dataclass_json
 @dataclass
 class MetaobjectHandle(ExcludeNullMixin):

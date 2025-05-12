@@ -8,7 +8,6 @@ if __name__ == "__main__":
 
     # Feature mapping
     path = run_feature_mapping(path)
-    
+
     # To jsonl
     convert_to_jsonl(path)
-    

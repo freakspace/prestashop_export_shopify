@@ -45,6 +45,7 @@ consolidation_mapping = {
     "Propan": "Medie",
 }
 
+
 def metafields_include_key(metafields, key):
     """
     Check if any metafield in the list has the specified value.
@@ -81,7 +82,9 @@ def feature_mapping(metafields):
             passthrough_metafields.append(metafield)
             continue
 
-        new_key = consolidation_mapping.get(metafield.key, key_mapping.get(metafield.key, metafield.key))
+        new_key = consolidation_mapping.get(
+            metafield.key, key_mapping.get(metafield.key, metafield.key)
+        )
         new_value = metafield.value
 
         # Skip "false" values for consolidated keys
@@ -113,34 +116,56 @@ def feature_mapping(metafields):
         ShopifyMetaField(
             namespace="product_feature",
             key=slugify(key),
-            value=json.dumps(list(values)) if (len(values) > 1 or key == "Medie") else list(values)[0],
-            type="list.single_line_text_field" if key == "Medie" else "single_line_text_field",
+            value=(
+                json.dumps(list(values))
+                if (len(values) > 1 or key == "Medie")
+                else list(values)[0]
+            ),
+            type=(
+                "list.single_line_text_field"
+                if key == "Medie"
+                else "single_line_text_field"
+            ),
         )
         for key, values in transformed_metafields.items()
         # Remove metafields with multiple values for specific keys - it doesnt make sense to have 2 different lengths for example
-        if not (slugify(key) in ["hojde", "bredde", "laengde", "maks-tryk", "dimension", "liter-min"] and len(values) > 1)
+        if not (
+            slugify(key)
+            in ["hojde", "bredde", "laengde", "maks-tryk", "dimension", "liter-min"]
+            and len(values) > 1
+        )
     ]
     # TODO Remove duplicates længde etc.
-
 
     # Combine product_feature metafields with passthrough metafields
     return passthrough_metafields + product_feature_metafields
 
+
 def run_feature_mapping(path):
     with open(path, "r") as file:
         data = json.load(file)
-    
+
     for product in data:
-        if "metafields" in product and isinstance(product["metafields"], list) and len(product["metafields"]) > 0:
+        if (
+            "metafields" in product
+            and isinstance(product["metafields"], list)
+            and len(product["metafields"]) > 0
+        ):
             # Convert metafields from dictionaries to ShopifyMetaField objects
             metafields = [
-                ShopifyMetaField(**metafield) if isinstance(metafield, dict) else metafield
+                (
+                    ShopifyMetaField(**metafield)
+                    if isinstance(metafield, dict)
+                    else metafield
+                )
                 for metafield in product["metafields"]
             ]
-            
+
             transformed_metafields = feature_mapping(metafields)
-            product["metafields"] = [metafield.to_dict() for metafield in transformed_metafields ]
-        
+            product["metafields"] = [
+                metafield.to_dict() for metafield in transformed_metafields
+            ]
+
     with open("dump/transformed_shopify_products.json", "w") as file:
         json.dump(data, file, indent=2)
 
