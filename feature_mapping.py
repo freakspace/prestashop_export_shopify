@@ -113,8 +113,8 @@ def feature_mapping(metafields):
         ShopifyMetaField(
             namespace="product_feature",
             key=slugify(key),
-            value=json.dumps(list(values)) if len(values) > 1 else list(values)[0],
-            type="single_line_text_field",
+            value=json.dumps(list(values)) if (len(values) > 1 or key == "Medie") else list(values)[0],
+            type="list.single_line_text_field" if key == "Medie" else "single_line_text_field",
         )
         for key, values in transformed_metafields.items()
         # Remove metafields with multiple values for specific keys - it doesnt make sense to have 2 different lengths for example
@@ -126,8 +126,8 @@ def feature_mapping(metafields):
     # Combine product_feature metafields with passthrough metafields
     return passthrough_metafields + product_feature_metafields
 
-if __name__ == "__main__":
-    with open("dump/shopify_products.json", "r") as file:
+def run_feature_mapping(path):
+    with open(path, "r") as file:
         data = json.load(file)
     
     for product in data:
@@ -144,45 +144,4 @@ if __name__ == "__main__":
     with open("dump/transformed_shopify_products.json", "w") as file:
         json.dump(data, file, indent=2)
 
-""" # TODO Der er slange-længde og længde-slange
-
-from shopify_types import ShopifyMetaField
-
-TEST_DATA = [
-    ShopifyMetaField(namespace='product_feature', key='Højde', value='160,00', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Bredde', value='30,00', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Længde', value='387,00', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Længde', value='120,00', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Bredde', value='178,00', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Højde', value='331,00', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Længde (slange)', value='10m', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Dimension', value='5/16"', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Dimension', value='Andet', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Tilslutning', value='1/4" u.g.', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Max Tryk', value='20,00', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Max Tryk', value='10,50', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Medie', value='Luft', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Materiale', value='Plast', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Liter min', value='200,00', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Maks tryk', value='20', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Slange længde', value='10m', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Indgang', value='3/8" u.g.', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Udgang', value='1/4" u.g.', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Luft', value='true', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Vand', value='false', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Olie', value='false', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Fedt', value='false', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Benzin - Diesel', value='false', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Adblue', value='false', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Gas - Ilt', value='false', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Propan', value='false', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Højtryk', value='false', type='single_line_text_field'),
-    ShopifyMetaField(namespace='product_feature', key='Svivel', value='Messing', type='single_line_text_field'),
-]
-
-# Pass the parsed data to your function
-transformed_metafields = feature_mapping(TEST_DATA)
-
-# Print the transformed metafields
-for metafield in transformed_metafields:
-    print(metafield) """
+    return "dump/transformed_shopify_products.json"

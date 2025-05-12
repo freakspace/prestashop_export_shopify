@@ -30,6 +30,7 @@ from shopify_types import (
     ProductSet,
     CreateCollectionInput,
     CreateBrandInput,
+    MetaobjectHandle
 )
 
 DEFAULT_OPTION_NAME = "Title"
@@ -41,7 +42,10 @@ PRODUCTS_TO_SKIP = ["738"]
 # TODO Default title - maybe use product name?
 # TODO nogen billeder fra karcher komemr med selvom de ikke er synlige i PS (måske bare fiks det manuelt)
 # TODO For the ongoing sync i need to handle cases where they send new product features to prevent dublicates
-# TODO For dublicated values like længde, maybe just skip it, and it will be update at the first sync
+# TODO Naming convention can be imroved
+# TODO If metafield value is a list, all of the values has to be a list
+# TODO Brands is not getting created properly - missing data in shopify
+# TODO There might be an issue where categories share same names, its not set correct -  see product 762
 def clean_html(html_content):
     if not html_content:
         return ""
@@ -62,6 +66,19 @@ def clean_html(html_content):
 
     return str(soup)
 
+used_handles = set()
+
+def ensure_unique_handle(handle):
+    """
+    Ensure the handle is unique by appending a small suffix if necessary.
+    """
+    original_handle = handle
+    counter = 1
+    while handle in used_handles:
+        handle = f"{original_handle}-{counter}"
+        counter += 1
+    used_handles.add(handle)
+    return handle
 
 def create_shopify_collection_input(category):
     metafields = [
@@ -125,7 +142,7 @@ def create_shopify_brand_input(manufacturer):
         meta_description=manufacturer["manufacturer"]["meta_description"]["language"][
             "value"
         ],
-        handle=manufacturer["manufacturer"]["link_rewrite"]["value"],
+        handle=MetaobjectHandle(handle=manufacturer["manufacturer"]["link_rewrite"]["value"], type="brand"),
     )
 
 
@@ -217,7 +234,7 @@ def create_shopify_product_input(product, as_set=False):
     shopify_product = Product(
         title=product["name"]["language"]["value"],
         descriptionHtml=clean_html(product["description"]["language"]["value"]),
-        handle=product["link_rewrite"]["language"]["value"],
+        handle=ensure_unique_handle(product["link_rewrite"]["language"]["value"]),
         seo=seo,
         status="ACTIVE",
         # vendor=get_manufacturer_name(product["id_manufacturer"]),
@@ -378,7 +395,7 @@ def create_shopify_product_input(product, as_set=False):
             price=str(base_price),
             optionValues=[
                 VariantOptionValue(
-                    name=DEFAULT_OPTION_VALUE_NAME, optionName=DEFAULT_OPTION_NAME
+                    name=product["name"]["language"]["value"], optionName=DEFAULT_OPTION_NAME
                 )
             ],
         )
@@ -430,7 +447,7 @@ def create_shopify_product_input(product, as_set=False):
         shopify_product.productOptions = [
             ProductOptionValue(
                 name=DEFAULT_OPTION_NAME,
-                values=[OptionValue(name=DEFAULT_OPTION_VALUE_NAME)],
+                values=[OptionValue(name=product["name"]["language"]["value"])],
             )
         ]
 
@@ -465,7 +482,6 @@ def create_shopify_product_input(product, as_set=False):
         product=shopify_product, media=media, metafields=metafields, variants=variants
     )
 
-
 def dump_products():
     products = get_products(id=None, limit=50, random_sample=True)
     CREATE_AS_SET = True
@@ -492,4 +508,6 @@ def dump_products():
     else:
         # Save the Shopify product inputs as JSON
         with open(os.path.join("dump", "shopify_products.json"), "w") as f:
-            json.dump([product.to_dict() for product in shopify_products], f, indent=2)
+            json.dump([product.to_dict() for product in shopify_products if product is not None], f, indent=2)
+
+    return "dump/shopify_products.json"

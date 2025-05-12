@@ -142,16 +142,22 @@ class CreateCollectionInput(ExcludeNullMixin):
     seo: Optional[SEO] = None
     metafields: Optional[List[ShopifyMetaField]] = None
 
+@dataclass_json
+@dataclass
+class MetaobjectHandle(ExcludeNullMixin):
+    handle: str
+    type: str
+
 
 @dataclass_json
 @dataclass
 class CreateBrandInput(ExcludeNullMixin):
     name: str
+    handle: MetaobjectHandle
     description: Optional[str] = None
     short_description: Optional[str] = None
     meta_title: Optional[str] = None
     meta_description: Optional[str] = None
-    handle: Optional[str] = None
 
 
 @dataclass_json
