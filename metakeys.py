@@ -3,7 +3,7 @@ import json
 # Extract unique keys from "metafields"
 keys = []
 
-with open("dump/shopify_products-13.jsonl", "r") as file:
+with open("dump/shopify_products.jsonl", "r") as file:
     data = [json.loads(line)["input"] for line in file]
 
 for product in data:

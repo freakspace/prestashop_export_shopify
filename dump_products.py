@@ -89,25 +89,32 @@ def ensure_unique_handle(handle):
 def create_shopify_collection_input(category):
     metafields = [
         ShopifyMetaField(
-            namespace="prestashop_category_id",
+            namespace="prestashop",
             key="id",
             value=str(category["id"]),
             type="single_line_text_field",
         ),
         ShopifyMetaField(
-            namespace="prestashop_posittion",
+            namespace="prestashop",
             key="position",
             value=str(category["position"]),
             type="single_line_text_field",
         ),
-        # TODO Need the old URL
+        ShopifyMetaField(
+            namespace="prestashop",
+            key="url",
+            value=requests.get(
+            f"https://induclean.dk/{category["id"]}-random"
+            ).url,
+            type="single_line_text_field",
+        ),
     ]
 
     if category["id_parent"] not in CATEGORIES_TO_SKIP:
         metafields.append(
             ShopifyMetaField(
-                namespace="parent_category_id",
-                key="id",
+                namespace="prestashop",
+                key="parent_id",
                 value=str(category["id_parent"]),
                 type="single_line_text_field",
             )
@@ -308,7 +315,7 @@ def create_shopify_product_input(product, as_set=False):
 
     # Add prestashop product to metadata
     prestashop_product_id = ShopifyMetaField(
-        namespace="prestashop_product_id",
+        namespace="prestashop",
         key="id",
         value=product["id"],
         type="single_line_text_field",
@@ -320,7 +327,7 @@ def create_shopify_product_input(product, as_set=False):
     if product_reference:
         # Add prestashop reference to metadata
         prestashop_reference = ShopifyMetaField(
-            namespace="prestashop_reference",
+            namespace="prestashop",
             key="reference",
             value=product["reference"],
             type="single_line_text_field",
@@ -330,7 +337,7 @@ def create_shopify_product_input(product, as_set=False):
     # Add prestashop url to metadata
     product_id = product["id"]
     prestashop_url = ShopifyMetaField(
-        namespace="prestashop_url",
+        namespace="prestashop",
         key="url",
         value=requests.get(
             f"https://induclean.dk/random/{product_id}-random.html"
@@ -499,7 +506,7 @@ def create_shopify_product_input(product, as_set=False):
 
 
 def dump_products():
-    products = get_products(id=None, limit=50, random_sample=True)
+    products = get_products(id=None, limit=500, random_sample=True)
     CREATE_AS_SET = True
     if "products" in products:
         if isinstance(products["products"]["product"], list):
