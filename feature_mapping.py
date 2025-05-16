@@ -18,6 +18,7 @@ value_mapping = {
     "Benzin - Diesel": ["Benzin", "Diesel"],
     "Gas - ilt": ["Gas", "ilt"],
     "Gas/ilt": ["Gas", "ilt"],
+    "Gas og ilt": ["Gas", "ilt"],
     "Luft,Vand": ["Luft", "Vand"],
     "Luft,Vand,Olie": ["Luft", "Vand", "Olie"],
     "Luft/Vand": ["Luft", "Vand"],
@@ -31,6 +32,7 @@ value_mapping = {
     "Luft,Vand,Benzin/Diesel": ["Luft", "Vand", "Benzin", "Diesel"],
     "AD Blue": ["Adblue"],
     "CEE": ["CEE Stik"],
+    "Schuko": ["Schuko Stik"],
 }
 
 
