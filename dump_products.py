@@ -39,11 +39,7 @@ CATEGORIES_TO_SKIP = ["1", "2", "24", "591", "584", "604", "609", "597"]
 PRODUCTS_TO_SKIP = ["738"]
 
 
-# TODO Default title - maybe use product name?
-# TODO nogen billeder fra karcher komemr med selvom de ikke er synlige i PS (måske bare fiks det manuelt)
 # TODO For the ongoing sync i need to handle cases where they send new product features to prevent dublicates
-# TODO Naming convention can be imroved
-# TODO If metafield value is a list, all of the values has to be a list
 # TODO Brands is not getting created properly - missing data in shopify
 # TODO There might be an issue where categories share same names, its not set correct -  see product 762
 # TODO Need to create script to convert description to RTF
@@ -104,7 +100,7 @@ def create_shopify_collection_input(category):
             namespace="prestashop",
             key="url",
             value=requests.get(
-            f"https://induclean.dk/{category["id"]}-random"
+            f"https://induclean.dk/{category['id']}-random"
             ).url,
             type="single_line_text_field",
         ),
@@ -433,7 +429,9 @@ def create_shopify_product_input(product, as_set=False):
             except TypeError:
                 raise Exception("Failed to get category ID")
 
-            if category_id not in CATEGORIES_TO_SKIP:
+            is_active = category.get("active", False)
+
+            if category_id not in CATEGORIES_TO_SKIP and is_active:
                 category_instance = get_category(category_id)
                 collection = create_shopify_collection_input(
                     category_instance["category"]
@@ -506,7 +504,7 @@ def create_shopify_product_input(product, as_set=False):
 
 
 def dump_products():
-    products = get_products(id=None, limit=750, random_sample=True)
+    products = get_products(id=None, limit=10, random_sample=True)
     CREATE_AS_SET = True
     if "products" in products:
         if isinstance(products["products"]["product"], list):

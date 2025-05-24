@@ -8,7 +8,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 PS_API_KEY = os.environ.get("PS_API_KEY")
-PS_API_URL = os.environ.get("PS_API_URL")
+PS_API_URL = "https://induclean.dk/api"
+
 
 if PS_API_KEY is None:
     raise Exception("You need to set the Prestashp API key")
