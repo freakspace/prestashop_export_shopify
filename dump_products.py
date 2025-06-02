@@ -386,7 +386,6 @@ def create_shopify_product_input(product, as_set=False):
         combination_payload = product["associations"]["combinations"]["combination"]
         if isinstance(combination_payload, dict):
             combination_id = combination_payload["id"]
-            # TODO Maybe construct a default variant instead, if there is only 1 option
             variant_input, _ = create_shopify_product_variant_input(
                 base_price, wholesale_price, combination_id, option_values
             )

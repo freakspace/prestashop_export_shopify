@@ -170,7 +170,7 @@ class ProductSet(ExcludeNullMixin):
     handle: str
     seo: SEO
     status: str
-    files: List[File]  # TODO Give file a better name
+    files: List[File]
     metafields: List[ShopifyMetaField]
     variants: List[CreateShopifyProductVariantInput]
 

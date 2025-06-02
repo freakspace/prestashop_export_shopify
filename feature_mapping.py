@@ -3,8 +3,6 @@ import ast
 from slugify import slugify
 from shopify_types import ShopifyMetaField
 
-# TODO Good example https://induclean.dk/slangeopruller/2126-aut-slangeopruller-til-luft-20-bar-5706224097264.html
-# TODO https://induclean.dk/kabeloprullere/1902-aut-kabelopruller-ip42--5706224095031.html
 # Key mapping (e.g., map "volume" to "size")
 key_mapping = {
     "Liter / min.": "Liter min.",
