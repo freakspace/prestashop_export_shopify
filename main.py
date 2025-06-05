@@ -12,6 +12,6 @@ if __name__ == "__main__":
 
     # Add SKUs
     path = run_skus(path)
-    
+
     # To jsonl
     convert_to_jsonl(path)

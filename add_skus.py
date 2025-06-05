@@ -4,6 +4,7 @@ import re
 INPUT_PATH = "dump/transformed_shopify_products.json"
 OUTPUT_PATH = "dump/transformed_shopify_products_with_skus.json"
 
+
 def find_highest_ic_sku(products):
     max_num = 0
     ic_pattern = re.compile(r"^IC(\d+)$", re.IGNORECASE)
@@ -16,6 +17,7 @@ def find_highest_ic_sku(products):
                 if num > max_num:
                     max_num = num
     return max_num
+
 
 def assign_ic_variant_skus(products, start_num):
     next_num = start_num + 1
@@ -30,6 +32,7 @@ def assign_ic_variant_skus(products, start_num):
                 variant["inventoryItem"] = inv_item
                 next_num += 1
     return products
+
 
 def run_skus(path: str):
     with open(path, "r") as f:

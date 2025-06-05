@@ -99,9 +99,7 @@ def create_shopify_collection_input(category):
         ShopifyMetaField(
             namespace="prestashop",
             key="url",
-            value=requests.get(
-            f"https://induclean.dk/{category['id']}-random"
-            ).url,
+            value=requests.get(f"https://induclean.dk/{category['id']}-random").url,
             type="single_line_text_field",
         ),
     ]

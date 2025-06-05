@@ -2,6 +2,7 @@ import json
 
 INPUT_PATH = "dump/transformed_shopify_products_with_skus.json"
 
+
 def get_all_variant_skus(products):
     skus = []
     for product in products:
@@ -10,6 +11,7 @@ def get_all_variant_skus(products):
             if sku:
                 skus.append(sku)
     return skus
+
 
 def main():
     with open(INPUT_PATH, "r") as f:
@@ -27,9 +29,11 @@ def main():
         print("❌ Duplicate SKUs found!")
         # Print duplicates
         from collections import Counter
+
         for sku, count in Counter(skus).items():
             if count > 1:
                 print(f"{sku}: {count} times")
+
 
 if __name__ == "__main__":
     main()
