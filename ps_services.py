@@ -183,3 +183,14 @@ def get_features(id: int = None, limit: int = 999):
     raise Exception(
         "get_categories method requires either an id or a limit greater than 1"
     )
+
+
+def get_stock(id: int):
+    stock = prestashop.get("stock_availables", id)
+
+    try:
+        stock_available = int(stock["stock_available"]["quantity"])
+    except Exception:
+        stock_available = 0
+    
+    return stock_available

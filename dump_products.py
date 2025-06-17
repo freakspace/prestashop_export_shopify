@@ -13,6 +13,7 @@ from ps_services import (
     get_manufacturer,
     get_supplier_name,
     get_category,
+    get_stock
 )
 
 from shopify_types import (
@@ -31,12 +32,16 @@ from shopify_types import (
     CreateCollectionInput,
     CreateBrandInput,
     MetaobjectHandle,
+    InventoryQuantity
 )
 
 DEFAULT_OPTION_NAME = "Title"
-DEFAULT_OPTION_VALUE_NAME = "Default Title"
 CATEGORIES_TO_SKIP = ["1", "2", "24", "591", "584", "604", "609", "597"]
 PRODUCTS_TO_SKIP = ["738"]
+LOCATION_ID_PRODUCTION="gid://shopify/Location/104422539566"
+LOCATION_ID_DEVELOPMENT="gid://shopify/Location/105528688972"
+LOCATION_ID = LOCATION_ID_PRODUCTION
+INVENTORY_NAME="available"
 
 
 # TODO For the ongoing sync i need to handle cases where they send new product features to prevent dublicates
@@ -170,11 +175,14 @@ def get_option_value(product_option_values_id: int):
 
 
 def create_shopify_product_variant_input(
-    base_price, base_cost_price, combination_id, option_values
+    base_price, base_cost_price, combination_id, option_values, stock_availables
 ):
     variant = get_combination(combination_id)
     cost_price = float(variant["combination"]["wholesale_price"])
-
+    stock_quantity = 0
+    for stock in stock_availables:
+        if combination_id == stock["id_product_attribute"]:
+            stock_quantity = get_stock(stock["id"])
     # Defaults to base cost price if cost price is not set
     if cost_price == 0.0:
         cost_price = base_cost_price
@@ -221,6 +229,13 @@ def create_shopify_product_variant_input(
             inventoryPolicy="CONTINUE",  # CONTINUE = Customers can buy this product variant after it's out of stock.
             optionValues=variant_option_values,
             price=str(base_price + float(variant["combination"]["price"])),
+            inventoryQuantities=[
+                InventoryQuantity(
+                    locationId=LOCATION_ID,
+                    name=INVENTORY_NAME,
+                    quantity=stock_quantity
+                )
+            ],
         )
 
         return variant_input, option_values
@@ -382,21 +397,27 @@ def create_shopify_product_input(product, as_set=False):
         and "combination" in product["associations"]["combinations"]
     ):
         combination_payload = product["associations"]["combinations"]["combination"]
+        stock_availables = product["associations"]["stock_availables"]["stock_available"]
         if isinstance(combination_payload, dict):
             combination_id = combination_payload["id"]
             variant_input, _ = create_shopify_product_variant_input(
-                base_price, wholesale_price, combination_id, option_values
+                base_price, wholesale_price, combination_id, option_values, stock_availables
             )
             if variant_input:
                 variants.append(variant_input)
         else:
             for combination in product["associations"]["combinations"]["combination"]:
                 variant_input, option_values = create_shopify_product_variant_input(
-                    base_price, wholesale_price, combination["id"], option_values
+                    base_price, wholesale_price, combination["id"], option_values, stock_availables
                 )
                 if variant_input:
                     variants.append(variant_input)
     else:
+        if "stock_available" in product["associations"]["stock_availables"]:
+            stock_id = product["associations"]["stock_availables"]["stock_available"]["id"]
+            stock = get_stock(stock_id)
+        else:
+            stock = 0
         # Construct a single Variant since Shopify requires at least 1 variant
         new_variant = CreateShopifyProductVariantInput(
             barcode=product["ean13"],
@@ -407,6 +428,11 @@ def create_shopify_product_input(product, as_set=False):
             ),
             inventoryPolicy="CONTINUE",
             price=str(base_price),
+            inventoryQuantities=[InventoryQuantity(
+                locationId = LOCATION_ID,
+                name=INVENTORY_NAME,
+                quantity=stock
+            )],
             optionValues=[
                 VariantOptionValue(
                     name=product["name"]["language"]["value"],
@@ -476,13 +502,11 @@ def create_shopify_product_input(product, as_set=False):
     if as_set:
 
         return ProductSet(
-            # id="gid://shopify/Product/10079785100", pass id to update
             title=shopify_product.title,
             descriptionHtml=shopify_product.descriptionHtml,
             handle=shopify_product.handle,
             seo=shopify_product.seo,
             status=shopify_product.status,
-            # vendor=shopify_product.vendor,
             files=media,
             productOptions=(
                 shopify_product.productOptions
@@ -501,7 +525,7 @@ def create_shopify_product_input(product, as_set=False):
 
 
 def dump_products():
-    products = get_products(id=None, limit=10, random_sample=True)
+    products = get_products(id=None, limit=4000, random_sample=False)
     CREATE_AS_SET = True
     if "products" in products:
         if isinstance(products["products"]["product"], list):
@@ -523,17 +547,16 @@ def dump_products():
     if not os.path.exists("dump"):
         os.makedirs("dump")
 
-    else:
-        # Save the Shopify product inputs as JSON
-        with open(os.path.join("dump", "shopify_products.json"), "w") as f:
-            json.dump(
-                [
-                    product.to_dict()
-                    for product in shopify_products
-                    if product is not None
-                ],
-                f,
-                indent=2,
-            )
+    # Save the Shopify product inputs as JSON
+    with open(os.path.join("dump", "shopify_products.json"), "w") as f:
+        json.dump(
+            [
+                product.to_dict()
+                for product in shopify_products
+                if product is not None
+            ],
+            f,
+            indent=2,
+        )
 
     return "dump/shopify_products.json"

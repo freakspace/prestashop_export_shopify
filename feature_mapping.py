@@ -1,5 +1,5 @@
+import os
 import json
-import ast
 from slugify import slugify
 from shopify_types import ShopifyMetaField
 
@@ -14,9 +14,9 @@ key_mapping = {
 # Value mapping (e.g., map "L" to "Large" and "Small/Medium" to "Small" and "Medium")
 value_mapping = {
     "Benzin - Diesel": ["Benzin", "Diesel"],
-    "Gas - ilt": ["Gas", "ilt"],
-    "Gas/ilt": ["Gas", "ilt"],
-    "Gas og ilt": ["Gas", "ilt"],
+    "Gas - ilt": ["Gas", "Ilt"],
+    "Gas/ilt": ["Gas", "Ilt"],
+    "Gas og ilt": ["Gas", "Ilt"],
     "Luft,Vand": ["Luft", "Vand"],
     "Luft,Vand,Olie": ["Luft", "Vand", "Olie"],
     "Luft/Vand": ["Luft", "Vand"],

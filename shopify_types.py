@@ -51,6 +51,14 @@ class InventoryItem(ExcludeNullMixin):
 
 @dataclass_json
 @dataclass
+class InventoryQuantity(ExcludeNullMixin):
+    locationId: str  # The location ID where the inventory is stored.
+    name: str
+    quantity: int
+
+
+@dataclass_json
+@dataclass
 class VariantOptionValue(ExcludeNullMixin):
     name: str  # Specifies the product option value by name.
     optionName: str  # Specifies the product option by name.
@@ -76,6 +84,7 @@ class CreateShopifyProductVariantInput(ExcludeNullMixin):
     inventoryItem: InventoryItem
     inventoryPolicy: str  # CONTINUE = Customers can buy this product variant after it's out of stock.
     price: MoneyV2
+    inventoryQuantities: List[InventoryQuantity]
     optionValues: List[VariantOptionValue]
 
 
