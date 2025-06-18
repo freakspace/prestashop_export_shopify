@@ -166,8 +166,14 @@ def get_categories(id: int = None, limit: int = 100):
     )
 
 
+_category_cache = {}
+
 def get_category(id: int):
-    return prestashop.get("categories", id)
+    if id in _category_cache:
+        return _category_cache[id]
+    category = prestashop.get("categories", id)
+    _category_cache[id] = category
+    return category
 
 
 def get_features(id: int = None, limit: int = 999):
@@ -192,5 +198,5 @@ def get_stock(id: int):
         stock_available = int(stock["stock_available"]["quantity"])
     except Exception:
         stock_available = 0
-    
+
     return stock_available

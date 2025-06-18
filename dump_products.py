@@ -13,7 +13,7 @@ from ps_services import (
     get_manufacturer,
     get_supplier_name,
     get_category,
-    get_stock
+    get_stock,
 )
 
 from shopify_types import (
@@ -32,16 +32,16 @@ from shopify_types import (
     CreateCollectionInput,
     CreateBrandInput,
     MetaobjectHandle,
-    InventoryQuantity
+    InventoryQuantity,
 )
 
 DEFAULT_OPTION_NAME = "Title"
 CATEGORIES_TO_SKIP = ["1", "2", "24", "591", "584", "604", "609", "597"]
 PRODUCTS_TO_SKIP = ["738"]
-LOCATION_ID_PRODUCTION="gid://shopify/Location/104422539566"
-LOCATION_ID_DEVELOPMENT="gid://shopify/Location/105528688972"
+LOCATION_ID_PRODUCTION = "gid://shopify/Location/104422539566"
+LOCATION_ID_DEVELOPMENT = "gid://shopify/Location/105528688972"
 LOCATION_ID = LOCATION_ID_PRODUCTION
-INVENTORY_NAME="available"
+INVENTORY_NAME = "available"
 
 
 # TODO For the ongoing sync i need to handle cases where they send new product features to prevent dublicates
@@ -177,6 +177,12 @@ def get_option_value(product_option_values_id: int):
 def create_shopify_product_variant_input(
     base_price, base_cost_price, combination_id, option_values, stock_availables
 ):
+    # Normalize stock_availables to always be a list
+    if isinstance(stock_availables, dict):
+        stock_availables = [stock_availables]
+    elif not isinstance(stock_availables, list):
+        stock_availables = []
+
     variant = get_combination(combination_id)
     cost_price = float(variant["combination"]["wholesale_price"])
     stock_quantity = 0
@@ -231,9 +237,7 @@ def create_shopify_product_variant_input(
             price=str(base_price + float(variant["combination"]["price"])),
             inventoryQuantities=[
                 InventoryQuantity(
-                    locationId=LOCATION_ID,
-                    name=INVENTORY_NAME,
-                    quantity=stock_quantity
+                    locationId=LOCATION_ID, name=INVENTORY_NAME, quantity=stock_quantity
                 )
             ],
         )
@@ -397,24 +401,36 @@ def create_shopify_product_input(product, as_set=False):
         and "combination" in product["associations"]["combinations"]
     ):
         combination_payload = product["associations"]["combinations"]["combination"]
-        stock_availables = product["associations"]["stock_availables"]["stock_available"]
+        stock_availables = product["associations"]["stock_availables"][
+            "stock_available"
+        ]
         if isinstance(combination_payload, dict):
             combination_id = combination_payload["id"]
             variant_input, _ = create_shopify_product_variant_input(
-                base_price, wholesale_price, combination_id, option_values, stock_availables
+                base_price,
+                wholesale_price,
+                combination_id,
+                option_values,
+                stock_availables,
             )
             if variant_input:
                 variants.append(variant_input)
         else:
             for combination in product["associations"]["combinations"]["combination"]:
                 variant_input, option_values = create_shopify_product_variant_input(
-                    base_price, wholesale_price, combination["id"], option_values, stock_availables
+                    base_price,
+                    wholesale_price,
+                    combination["id"],
+                    option_values,
+                    stock_availables,
                 )
                 if variant_input:
                     variants.append(variant_input)
     else:
         if "stock_available" in product["associations"]["stock_availables"]:
-            stock_id = product["associations"]["stock_availables"]["stock_available"]["id"]
+            stock_id = product["associations"]["stock_availables"]["stock_available"][
+                "id"
+            ]
             stock = get_stock(stock_id)
         else:
             stock = 0
@@ -428,11 +444,11 @@ def create_shopify_product_input(product, as_set=False):
             ),
             inventoryPolicy="CONTINUE",
             price=str(base_price),
-            inventoryQuantities=[InventoryQuantity(
-                locationId = LOCATION_ID,
-                name=INVENTORY_NAME,
-                quantity=stock
-            )],
+            inventoryQuantities=[
+                InventoryQuantity(
+                    locationId=LOCATION_ID, name=INVENTORY_NAME, quantity=stock
+                )
+            ],
             optionValues=[
                 VariantOptionValue(
                     name=product["name"]["language"]["value"],
@@ -445,6 +461,7 @@ def create_shopify_product_input(product, as_set=False):
     # Handle collections
     collections = []
     category_payload = product["associations"]["categories"]["category"]
+
     if isinstance(category_payload, list):
         for category in category_payload:
             try:
@@ -452,14 +469,16 @@ def create_shopify_product_input(product, as_set=False):
             except TypeError:
                 raise Exception("Failed to get category ID")
 
-            is_active = category.get("active", False)
-
-            if category_id not in CATEGORIES_TO_SKIP and is_active:
+            if category_id not in CATEGORIES_TO_SKIP:
                 category_instance = get_category(category_id)
-                collection = create_shopify_collection_input(
-                    category_instance["category"]
-                )
-                collections.append(collection)
+
+                is_active = category_instance["category"].get("active", False)
+
+                if is_active:
+                    collection = create_shopify_collection_input(
+                        category_instance["category"]
+                    )
+                    collections.append(collection)
     else:
         category_id = category_payload["id"]
         if category_id not in CATEGORIES_TO_SKIP:
@@ -525,7 +544,7 @@ def create_shopify_product_input(product, as_set=False):
 
 
 def dump_products():
-    products = get_products(id=None, limit=4000, random_sample=False)
+    products = get_products(id=None, limit=25, random_sample=False)
     CREATE_AS_SET = True
     if "products" in products:
         if isinstance(products["products"]["product"], list):
@@ -550,11 +569,7 @@ def dump_products():
     # Save the Shopify product inputs as JSON
     with open(os.path.join("dump", "shopify_products.json"), "w") as f:
         json.dump(
-            [
-                product.to_dict()
-                for product in shopify_products
-                if product is not None
-            ],
+            [product.to_dict() for product in shopify_products if product is not None],
             f,
             indent=2,
         )
